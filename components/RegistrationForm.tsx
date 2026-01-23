@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FormData, FormErrors, CLASS_OPTIONS } from '../types';
 import { Input, Select, TextArea, RadioGroup } from './ui';
+
+// Optional: Set your Google Apps Script Web App URL here to enable Sheets integration
+// const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/deployment-id/exec";
+const GOOGLE_SCRIPT_URL = "";
 
 const INITIAL_DATA: FormData = {
   parentName: '',
@@ -8,7 +12,7 @@ const INITIAL_DATA: FormData = {
   studentDob: '',
   skillLevel: '',
   priorExperience: '',
-  classes: '', // Changed to empty string for single selection
+  classes: '',
   address: '',
   phone: '',
   email: '',
@@ -37,7 +41,6 @@ const RegistrationForm: React.FC = () => {
     return age;
   };
 
-  // Handle Input Changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
@@ -48,7 +51,6 @@ const RegistrationForm: React.FC = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    // Clear error on change
     if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -61,41 +63,65 @@ const RegistrationForm: React.FC = () => {
     }
   };
 
-  // Validation Logic
+  // Reusable validation logic
+  const checkFieldValidity = useCallback((name: keyof FormData, value: any): boolean => {
+    switch (name) {
+      case 'parentName':
+      case 'studentName':
+      case 'address':
+        return typeof value === 'string' && value.trim().length > 0;
+      case 'studentDob':
+        if (!value) return false;
+        const age = calculateAge(value);
+        return age >= 6 && age <= 12;
+      case 'skillLevel':
+      case 'classes':
+        return !!value;
+      case 'phone':
+        return /^(\+27|0)[0-9]{9}$/.test((value || '').replace(/\s/g, ''));
+      case 'email':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
+      case 'consent':
+        return value === true;
+      case 'priorExperience':
+        // Optional field is considered valid if empty, or valid if not empty (always true for text)
+        // But for visual feedback, we only show checkmark if they typed something? 
+        // Or maybe just return false for empty so no checkmark appears?
+        return typeof value === 'string' && value.trim().length > 0;
+      default:
+        return false;
+    }
+  }, []);
+
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     let isValid = true;
 
-    if (!formData.parentName.trim()) newErrors.parentName = "Parent name is required";
-    if (!formData.studentName.trim()) newErrors.studentName = "Student name is required";
+    if (!checkFieldValidity('parentName', formData.parentName)) newErrors.parentName = "Parent name is required";
+    if (!checkFieldValidity('studentName', formData.studentName)) newErrors.studentName = "Student name is required";
     
-    // Date of Birth Validation
     if (!formData.studentDob) {
       newErrors.studentDob = "Date of Birth is required";
     } else {
-      const age = calculateAge(formData.studentDob);
-      if (age < 6 || age > 12) {
+      if (!checkFieldValidity('studentDob', formData.studentDob)) {
+        const age = calculateAge(formData.studentDob);
         newErrors.studentDob = `Student must be between 6 and 12 years old (Current age: ${age})`;
       }
     }
 
-    if (!formData.skillLevel) newErrors.skillLevel = "Please select a skill level";
-    if (!formData.classes) newErrors.classes = "Please select one class";
+    if (!checkFieldValidity('skillLevel', formData.skillLevel)) newErrors.skillLevel = "Please select a skill level";
+    if (!checkFieldValidity('classes', formData.classes)) newErrors.classes = "Please select one class";
+    if (!checkFieldValidity('address', formData.address)) newErrors.address = "Full address is required";
     
-    if (!formData.address.trim()) newErrors.address = "Full address is required";
-    
-    // South African Phone Validation: Matches +27... or 0... followed by 9 digits
-    const phoneRegex = /^(\+27|0)[0-9]{9}$/;
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+    } else if (!checkFieldValidity('phone', formData.phone)) {
       newErrors.phone = "Invalid SA phone format (e.g., 0821234567)";
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email)) {
+    } else if (!checkFieldValidity('email', formData.email)) {
       newErrors.email = "Invalid email address";
     }
 
@@ -108,12 +134,10 @@ const RegistrationForm: React.FC = () => {
     return isValid;
   };
 
-  // Submission Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Honeypot check
-    if (formData.botField) return;
+    if (formData.botField) return; // Honeypot trap
 
     if (!validate()) {
       return;
@@ -122,18 +146,20 @@ const RegistrationForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Normalize phone before sending
       const normalizedPhone = formData.phone.startsWith('0') 
         ? `+27${formData.phone.substring(1)}` 
         : formData.phone;
 
+      const { botField, ...rest } = formData;
+
       const payload = {
-        ...formData,
+        ...rest,
         phone: normalizedPhone,
-        "form-name": "tkm-registration"
+        "form-name": "tkm-registration",
+        "bot-field": botField,
+        timestamp: new Date().toISOString()
       };
 
-      // 1. Netlify Submission (application/x-www-form-urlencoded)
       const encode = (data: any) => {
         return Object.keys(data)
           .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
@@ -146,30 +172,16 @@ const RegistrationForm: React.FC = () => {
         body: encode(payload),
       });
 
-      /* 
-         TODO: Google Apps Script Web App Integration
-         To log submissions directly to a Google Sheet for administrative tracking:
-         
-         1. Field Mapping: 
-            Ensure your Google Script 'doPost(e)' function parses the following keys from the JSON body:
-            parentName, studentName, studentDob, skillLevel, priorExperience, classes, address, phone, email, referral
-         
-         2. Script Endpoint:
-            Deploy your script as a Web App (set access to "Anyone").
-         
-         3. POST implementation snippet:
-            await fetch("YOUR_APPS_SCRIPT_WEB_APP_URL", {
-              method: "POST",
-              mode: "no-cors", // Required for cross-origin requests to Google Apps Script
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-      */
+      if (GOOGLE_SCRIPT_URL) {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors", 
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
-      // Show temporary flash message before full success state
       setShowSuccessFlash(true);
-
-      // Scroll to form top to ensure message is seen
       const registerSection = document.getElementById('register');
       if (registerSection) {
         registerSection.scrollIntoView({ behavior: 'smooth' });
@@ -191,30 +203,32 @@ const RegistrationForm: React.FC = () => {
 
   if (submitStatus === 'success') {
     return (
-      <div id="register" className="max-w-3xl mx-auto py-24 px-4 text-center scroll-mt-24">
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-10 sm:p-16">
-          <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-8">
-            <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-bold text-green-900 mb-6">Registration Received</h2>
-          <p className="text-green-800 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
-            Thank you for registering with TKM Music & Cultural School. We have received your details and will contact you within 2-3 business days to confirm placement.
-          </p>
-          <button 
-            onClick={() => setSubmitStatus('idle')}
-            className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 shadow-sm transition-colors"
-          >
-            Register another student
-          </button>
+      <section id="register" className="py-24 bg-slate-50 scroll-mt-24">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-10 sm:p-16 animate-fade-in shadow-sm">
+            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-8">
+                <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-green-900 mb-6">Registration Received</h2>
+            <p className="text-green-800 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
+                Thank you for registering with TKM Music & Cultural School. We have received your details and will contact you within 2-3 business days to confirm placement.
+            </p>
+            <button 
+                onClick={() => setSubmitStatus('idle')}
+                className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 shadow-sm transition-colors"
+            >
+                Register another student
+            </button>
+            </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <section id="register" className="py-24 bg-white scroll-mt-24">
+    <section id="register" className="py-24 bg-slate-50 scroll-mt-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
           <h2 className="text-4xl font-bold text-slate-900 mb-4">Student Registration</h2>
@@ -232,10 +246,10 @@ const RegistrationForm: React.FC = () => {
         >
           {/* Netlify Honeypot */}
           <div className="hidden">
-            <label>Don’t fill this out if you’re human: <input name="botField" value={formData.botField} onChange={handleChange} /></label>
+            <label>Don’t fill this out if you’re human: <input name="botField" value={formData.botField} onChange={handleChange} autoComplete="off" /></label>
           </div>
 
-          {/* Temporary Success Message */}
+          {/* Temporary Success Flash */}
           {showSuccessFlash && (
             <div className="rounded-xl bg-green-50 p-6 border border-green-200 animate-fade-in" role="status" aria-live="polite">
               <div className="flex">
@@ -264,6 +278,7 @@ const RegistrationForm: React.FC = () => {
                 value={formData.parentName} 
                 onChange={handleChange} 
                 error={errors.parentName}
+                isValid={checkFieldValidity('parentName', formData.parentName)}
                 required 
                 disabled={isSubmitting}
               />
@@ -273,6 +288,7 @@ const RegistrationForm: React.FC = () => {
                 value={formData.studentName} 
                 onChange={handleChange} 
                 error={errors.studentName}
+                isValid={checkFieldValidity('studentName', formData.studentName)}
                 required 
                 disabled={isSubmitting}
               />
@@ -283,6 +299,7 @@ const RegistrationForm: React.FC = () => {
                 value={formData.studentDob} 
                 onChange={handleChange} 
                 error={errors.studentDob}
+                isValid={checkFieldValidity('studentDob', formData.studentDob)}
                 helperText="Must be between 6 and 12 years old"
                 required 
                 disabled={isSubmitting}
@@ -297,6 +314,7 @@ const RegistrationForm: React.FC = () => {
                   { value: 'Intermediate', label: 'Intermediate' },
                 ]}
                 error={errors.skillLevel}
+                isValid={checkFieldValidity('skillLevel', formData.skillLevel)}
                 required
                 disabled={isSubmitting}
               />
@@ -309,6 +327,7 @@ const RegistrationForm: React.FC = () => {
               rows={3}
               placeholder="Briefly describe previous lessons or exams passed..."
               disabled={isSubmitting}
+              isValid={checkFieldValidity('priorExperience', formData.priorExperience)}
             />
           </div>
 
@@ -361,6 +380,7 @@ const RegistrationForm: React.FC = () => {
                 value={formData.address} 
                 onChange={handleChange} 
                 error={errors.address}
+                isValid={checkFieldValidity('address', formData.address)}
                 required 
                 rows={3}
                 placeholder="Street address, suburb, city, postal code"
@@ -377,6 +397,7 @@ const RegistrationForm: React.FC = () => {
                 placeholder="082 123 4567"
                 helperText="South African format preferred"
                 error={errors.phone}
+                isValid={checkFieldValidity('phone', formData.phone)}
                 required 
                 disabled={isSubmitting}
               />
@@ -387,6 +408,7 @@ const RegistrationForm: React.FC = () => {
                 value={formData.email} 
                 onChange={handleChange} 
                 error={errors.email}
+                isValid={checkFieldValidity('email', formData.email)}
                 required 
                 disabled={isSubmitting}
               />

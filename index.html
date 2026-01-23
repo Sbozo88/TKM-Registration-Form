@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth scroll-pt-24">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,10 +8,10 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://tkm-project.example.com/" />
+    <meta property="og:url" content="https://tkm-project.netlify.app/" />
     <meta property="og:title" content="TKMProject School" />
     <meta property="og:description" content="Cultivating excellence in music and culture. Register online today. Space is limited!" />
-    <meta property="og:image" content="https://picsum.photos/1200/630" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1507838153414-b4b713384ebd?q=80&w=1200&h=630&fit=crop" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -64,22 +64,43 @@
       .animate-input-error {
         animation: error-pulse 0.5s ease-out;
       }
+
+      @keyframes fade-in-up {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      
+      @keyframes fade-in {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.6s ease-out both;
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "vite": "https://esm.sh/vite@^7.3.1"
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
 </head>
   <body class="bg-slate-50 text-slate-900 antialiased">
     <div id="root"></div>
+    
+    <!-- Netlify Forms Definitions -->
+    <!-- Registration Form -->
     <form name="tkm-registration" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="tkm-registration" />
+      <input type="text" name="bot-field" />
       <input type="text" name="parentName" />
       <input type="text" name="studentName" />
       <input type="date" name="studentDob" />
@@ -93,6 +114,17 @@
       <input type="checkbox" name="consent" />
       <input type="checkbox" name="sendCopy" />
     </form>
+
+    <!-- Contact Form -->
+    <form name="tkm-contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="tkm-contact" />
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+    </form>
+
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

@@ -4,10 +4,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   helperText?: string;
+  isValid?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, className = '', ...props }, ref) => {
+  ({ label, error, helperText, isValid, className = '', ...props }, ref) => {
     const inputId = props.id || props.name;
     const errorId = inputId ? `${inputId}-error` : undefined;
     const helperId = inputId ? `${inputId}-helper` : undefined;
@@ -18,17 +19,37 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <label htmlFor={inputId} className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 animate-shake' : 'text-slate-700'}`}>
           {label} {props.required && <span className={error ? "text-red-600" : "text-red-500"} aria-hidden="true">*</span>}
         </label>
-        <input
-          ref={ref}
-          id={inputId}
-          aria-invalid={!!error}
-          aria-describedby={ariaDescribedBy}
-          className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${
-            error ? 'border-red-500 bg-red-50 animate-input-error' : 'border-slate-300'
-          } ${className}`}
-          {...props}
-        />
-        {helperText && !error && <p id={helperId} className="mt-1.5 text-xs text-slate-500">{helperText}</p>}
+        <div className="relative">
+          <input
+            ref={ref}
+            id={inputId}
+            aria-invalid={!!error}
+            aria-describedby={ariaDescribedBy}
+            className={`w-full px-4 py-3 rounded-lg border text-base outline-none transition-all ${
+              error 
+                ? 'border-red-500 bg-red-50 text-red-900 placeholder-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error pr-10' 
+                : isValid
+                  ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10'
+                  : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+            } ${className}`}
+            {...props}
+          />
+          {isValid && !error && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none animate-fade-in">
+              <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+          )}
+          {error && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none animate-fade-in">
+              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+          )}
+        </div>
+        {helperText && !error && <p id={helperId} className={`mt-1.5 text-xs ${isValid ? 'text-green-600' : 'text-slate-500'}`}>{helperText}</p>}
         {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 font-medium">{error}</p>}
       </div>
     );
@@ -39,10 +60,11 @@ interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   label: string;
   error?: string;
   helperText?: string;
+  isValid?: boolean;
 }
 
 export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  ({ label, error, helperText, className = '', ...props }, ref) => {
+  ({ label, error, helperText, isValid, className = '', ...props }, ref) => {
     const inputId = props.id || props.name;
     const errorId = inputId ? `${inputId}-error` : undefined;
     const helperId = inputId ? `${inputId}-helper` : undefined;
@@ -53,17 +75,30 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         <label htmlFor={inputId} className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 animate-shake' : 'text-slate-700'}`}>
           {label} {props.required && <span className={error ? "text-red-600" : "text-red-500"} aria-hidden="true">*</span>}
         </label>
-        <textarea
-          ref={ref}
-          id={inputId}
-          aria-invalid={!!error}
-          aria-describedby={ariaDescribedBy}
-          className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${
-            error ? 'border-red-500 bg-red-50 animate-input-error' : 'border-slate-300'
-          } ${className}`}
-          {...props}
-        />
-        {helperText && !error && <p id={helperId} className="mt-1.5 text-xs text-slate-500">{helperText}</p>}
+        <div className="relative">
+            <textarea
+            ref={ref}
+            id={inputId}
+            aria-invalid={!!error}
+            aria-describedby={ariaDescribedBy}
+            className={`w-full px-4 py-3 rounded-lg border text-base outline-none transition-all ${
+                error 
+                ? 'border-red-500 bg-red-50 text-red-900 placeholder-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error' 
+                : isValid
+                    ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500'
+                    : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+            } ${className}`}
+            {...props}
+            />
+             {isValid && !error && (
+                <div className="absolute top-3 right-3 pointer-events-none animate-fade-in">
+                <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                </div>
+            )}
+        </div>
+        {helperText && !error && <p id={helperId} className={`mt-1.5 text-xs ${isValid ? 'text-green-600' : 'text-slate-500'}`}>{helperText}</p>}
         {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 font-medium">{error}</p>}
       </div>
     );
@@ -75,10 +110,11 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: { value: string; label: string }[];
   error?: string;
   helperText?: string;
+  isValid?: boolean;
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, options, error, helperText, className = '', ...props }, ref) => {
+  ({ label, options, error, helperText, isValid, className = '', ...props }, ref) => {
     const inputId = props.id || props.name;
     const errorId = inputId ? `${inputId}-error` : undefined;
     const helperId = inputId ? `${inputId}-helper` : undefined;
@@ -95,8 +131,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={ariaDescribedBy}
-            className={`w-full px-4 py-3 rounded-lg border bg-white appearance-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${
-              error ? 'border-red-500 bg-red-50 animate-input-error' : 'border-slate-300'
+            className={`w-full px-4 py-3 rounded-lg border text-base appearance-none outline-none transition-all ${
+              error 
+                ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error' 
+                : isValid
+                    ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500'
+                    : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
             } ${className}`}
             {...props}
           >
@@ -107,11 +147,16 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-500">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+          <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
+             {isValid && !error && (
+                <svg className="w-5 h-5 text-green-500 mr-2 animate-fade-in" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+            )}
+            <svg className={`w-4 h-4 ${error ? 'text-red-500' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
           </div>
         </div>
-        {helperText && !error && <p id={helperId} className="mt-1.5 text-xs text-slate-500">{helperText}</p>}
+        {helperText && !error && <p id={helperId} className={`mt-1.5 text-xs ${isValid ? 'text-green-600' : 'text-slate-500'}`}>{helperText}</p>}
         {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 font-medium">{error}</p>}
       </div>
     );
@@ -129,7 +174,6 @@ interface RadioGroupProps {
 }
 
 export const RadioGroup: React.FC<RadioGroupProps> = ({ id, label, options, selected, onChange, error, required }) => {
-  // Ensure a unique ID for label association
   const groupId = id || `radio-group-${React.useId ? React.useId() : Math.random().toString(36).substr(2, 9)}`;
   const labelId = `${groupId}-label`;
   const errorId = `${groupId}-error`;

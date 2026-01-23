@@ -8,20 +8,32 @@ const Hero: React.FC = () => {
       <div className="absolute top-40 left-0 -ml-20 w-72 h-72 bg-accent-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <div className="inline-flex flex-col sm:flex-row items-center py-2 px-4 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-6 border border-brand-100 shadow-sm animate-fade-in">
+        <div 
+          className="inline-flex flex-col sm:flex-row items-center py-2 px-4 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-6 border border-brand-100 shadow-sm animate-fade-in-up"
+          style={{ animationDelay: '100ms' }}
+        >
           <span>Admissions Open for 2025</span>
           <span className="hidden sm:inline mx-2 text-brand-300">|</span>
           <span className="text-accent-500">Note: Space is limited, first-come, first-serve</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-slate-900 tracking-tight leading-tight mb-6">
+        <h1 
+          className="text-4xl sm:text-5xl lg:text-7xl font-bold text-slate-900 tracking-tight leading-tight mb-6 animate-fade-in-up"
+          style={{ animationDelay: '200ms' }}
+        >
           Cultivating Excellence <br className="hidden sm:block" />
           in <span className="text-brand-600">Music</span> & <span className="text-accent-500">Culture</span>
         </h1>
-        <p className="mt-4 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p 
+          className="mt-4 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
+          style={{ animationDelay: '300ms' }}
+        >
           Join Johannesburg's premier intermediate-to-advanced cultural school. 
           We provide structured education in classical instruments, percussion, and dance to shape the next generation of artists.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <div 
+          className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up"
+          style={{ animationDelay: '400ms' }}
+        >
           <a
             href="#register"
             className="px-8 py-4 bg-brand-600 text-white font-semibold rounded-full hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-all transform hover:-translate-y-1 focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"

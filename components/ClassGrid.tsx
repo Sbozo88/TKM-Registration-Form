@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ClassItem } from '../types';
 
 const classes: ClassItem[] = [
@@ -87,8 +87,29 @@ const ClassIcon: React.FC<{ id: string, className?: string }> = ({ id, className
 }
 
 const ClassGrid: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 } // Trigger when 10% of the section is visible
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="classes" className="py-20 bg-slate-50 scroll-mt-24">
+    <section id="classes" className="py-20 bg-white scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Programs</h2>
@@ -98,17 +119,29 @@ const ClassGrid: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {classes.map((cls) => (
+        <div ref={containerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {classes.map((cls, index) => (
             <div 
               key={cls.id} 
-              className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group"
+              className={`bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-700 ease-out group flex flex-col transform ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: `${index * 75}ms` }}
             >
               <div className="h-10 w-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                 <ClassIcon id={cls.id} className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-2">{cls.name}</h3>
-              <p className="text-sm text-slate-600">{cls.description}</p>
+              <p className="text-sm text-slate-600 mb-6 flex-grow">{cls.description}</p>
+              <a 
+                href="#register" 
+                className="text-sm font-semibold text-brand-600 hover:text-brand-700 flex items-center"
+              >
+                Apply Now
+                <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
             </div>
           ))}
         </div>

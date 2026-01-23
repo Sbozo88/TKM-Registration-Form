@@ -1,3 +1,4 @@
+
 export interface ClassItem {
   id: string;
   name: string;
@@ -10,7 +11,7 @@ export type SkillLevel = 'Beginner' | 'Intermediate';
 export interface FormData {
   parentName: string;
   studentName: string;
-  studentDob: string; // Changed from studentAge to studentDob (string YYYY-MM-DD)
+  studentDob: string; // string YYYY-MM-DD
   skillLevel: SkillLevel | '';
   priorExperience: string;
   classes: string;
@@ -23,16 +24,28 @@ export interface FormData {
   sendCopy: boolean;
 }
 
+export interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  botField?: string;
+}
+
 export interface FormErrors {
   parentName?: string;
   studentName?: string;
-  studentDob?: string; // Changed from studentAge
+  studentDob?: string;
   skillLevel?: string;
   classes?: string;
   address?: string;
   phone?: string;
   email?: string;
   consent?: string;
+  // Contact form specific errors
+  name?: string;
+  subject?: string;
+  message?: string;
 }
 
 export const CLASS_OPTIONS = [
