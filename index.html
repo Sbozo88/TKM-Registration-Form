@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TKMProject | Music & Cultural Excellence</title>
+    <meta name="description" content="Join TKMProject in Johannesburg. Registration open for Violin, Cello, Dance, and more. Space is limited, first-come first-serve." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tkm-project.example.com/" />
+    <meta property="og:title" content="TKMProject School" />
+    <meta property="og:description" content="Cultivating excellence in music and culture. Register online today. Space is limited!" />
+    <meta property="og:image" content="https://picsum.photos/1200/630" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+                900: '#0c4a6e',
+              },
+              accent: {
+                500: '#d97706',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .bg-pattern {
+        background-color: #ffffff;
+        background-image: radial-gradient(#0284c7 0.5px, #ffffff 0.5px);
+        background-size: 10px 10px;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        15%, 45%, 75% { transform: translateX(-4px); }
+        30%, 60%, 90% { transform: translateX(4px); }
+      }
+      .animate-shake {
+        animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      }
+
+      @keyframes error-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); border-color: #ef4444; }
+        50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); border-color: #ef4444; }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: #ef4444; }
+      }
+      .animate-input-error {
+        animation: error-pulse 0.5s ease-out;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+    <form name="tkm-registration" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="parentName" />
+      <input type="text" name="studentName" />
+      <input type="date" name="studentDob" />
+      <input type="text" name="skillLevel" />
+      <textarea name="priorExperience"></textarea>
+      <input type="text" name="classes" />
+      <textarea name="address"></textarea>
+      <input type="tel" name="phone" />
+      <input type="email" name="email" />
+      <input type="text" name="referral" />
+      <input type="checkbox" name="consent" />
+      <input type="checkbox" name="sendCopy" />
+    </form>
+  </body>
+</html>
