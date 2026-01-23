@@ -57,10 +57,10 @@ const ContactForm: React.FC = () => {
           {/* Right Side: Form */}
           <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 shadow-sm">
             <form className="space-y-6">
-              <Input label="Your Name" placeholder="John Doe" required />
-              <Input label="Email Address" type="email" placeholder="john@example.com" required />
-              <Input label="Subject" placeholder="Inquiry about Violin classes" required />
-              <TextArea label="Message" rows={4} placeholder="How can we help you?" required />
+              <Input id="contact-name" name="name" label="Your Name" placeholder="John Doe" required />
+              <Input id="contact-email" name="email" label="Email Address" type="email" placeholder="john@example.com" required />
+              <Input id="contact-subject" name="subject" label="Subject" placeholder="Inquiry about Violin classes" required />
+              <TextArea id="contact-message" name="message" label="Message" rows={4} placeholder="How can we help you?" required />
               <button 
                 type="submit"
                 className="w-full py-4 bg-slate-900 text-white font-bold rounded-full hover:bg-slate-800 transition-colors shadow-lg"

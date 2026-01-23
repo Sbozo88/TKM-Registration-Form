@@ -43,10 +43,10 @@ const Navbar: React.FC = () => {
               <a
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-colors ${
+                className={`font-medium transition-all duration-200 ${
                   link.isCta
-                    ? 'px-4 py-2 bg-brand-600 text-white rounded-full hover:bg-brand-700 shadow-sm'
-                    : 'text-slate-600 hover:text-brand-600'
+                    ? 'px-7 py-2.5 bg-brand-600 text-white text-base rounded-full hover:bg-brand-700 shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                    : 'text-sm text-slate-600 hover:text-brand-600'
                 }`}
               >
                 {link.name}
@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
               onClick={handleLinkClick}
               className={`block px-3 py-3 rounded-md text-base font-medium ${
                 link.isCta
-                  ? 'bg-brand-50 text-brand-700 text-center mt-4'
+                  ? 'bg-brand-600 text-white text-center mt-4 rounded-lg shadow-sm'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-brand-600'
               }`}
             >

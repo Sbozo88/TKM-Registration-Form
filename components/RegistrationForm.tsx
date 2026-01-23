@@ -237,7 +237,7 @@ const RegistrationForm: React.FC = () => {
 
           {/* Temporary Success Message */}
           {showSuccessFlash && (
-            <div className="rounded-xl bg-green-50 p-6 border border-green-200 animate-fade-in">
+            <div className="rounded-xl bg-green-50 p-6 border border-green-200 animate-fade-in" role="status" aria-live="polite">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-6 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -318,6 +318,7 @@ const RegistrationForm: React.FC = () => {
             
             <div className={isSubmitting ? 'opacity-60 pointer-events-none' : ''}>
                 <RadioGroup 
+                id="classes-group"
                 label="Preferred Class"
                 options={CLASS_OPTIONS}
                 selected={formData.classes}
