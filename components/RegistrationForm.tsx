@@ -155,6 +155,8 @@ const RegistrationForm: React.FC = () => {
       const payload = {
         ...rest,
         phone: normalizedPhone,
+        // Netlify Forms uses this 'subject' field for the email subject line
+        subject: `New Student Registration: ${formData.studentName}`,
         "form-name": "tkm-registration",
         "bot-field": botField,
         timestamp: new Date().toISOString()

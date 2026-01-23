@@ -98,8 +98,9 @@
     
     <!-- Netlify Forms Definitions -->
     <!-- Registration Form -->
-    <form name="tkm-registration" netlify netlify-honeypot="bot-field" hidden>
+    <form name="tkm-registration" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
       <input type="hidden" name="form-name" value="tkm-registration" />
+      <input type="hidden" name="subject" />
       <input type="text" name="bot-field" />
       <input type="text" name="parentName" />
       <input type="text" name="studentName" />
@@ -116,7 +117,7 @@
     </form>
 
     <!-- Contact Form -->
-    <form name="tkm-contact" netlify netlify-honeypot="bot-field" hidden>
+    <form name="tkm-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
       <input type="hidden" name="form-name" value="tkm-contact" />
       <input type="text" name="bot-field" />
       <input type="text" name="name" />
