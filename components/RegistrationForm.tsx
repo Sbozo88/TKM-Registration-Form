@@ -2,9 +2,20 @@ import React, { useState, useCallback } from 'react';
 import { FormData, FormErrors, CLASS_OPTIONS } from '../types';
 import { Input, Select, TextArea, RadioGroup } from './ui';
 
-// Optional: Set your Google Apps Script Web App URL here to enable Sheets integration
-// const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/deployment-id/exec";
-const GOOGLE_SCRIPT_URL = "";
+/**
+ * Google Sheets Integration Configuration
+ * 
+ * To enable logging submissions to a Google Sheet:
+ * 1. Create a Google Sheet and go to Extensions > Apps Script.
+ * 2. Implement a doPost(e) function to handle the JSON payload.
+ *    - Parse JSON using JSON.parse(e.postData.contents).
+ *    - Map fields (parentName, studentName, classes, etc.) to your sheet columns.
+ * 3. Deploy as a Web App:
+ *    - Execute as: "Me"
+ *    - Who has access: "Anyone"
+ * 4. Paste the resulting Web App URL into the constant below.
+ */
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
 
 const INITIAL_DATA: FormData = {
   parentName: '',
@@ -84,9 +95,6 @@ const RegistrationForm: React.FC = () => {
       case 'consent':
         return value === true;
       case 'priorExperience':
-        // Optional field is considered valid if empty, or valid if not empty (always true for text)
-        // But for visual feedback, we only show checkmark if they typed something? 
-        // Or maybe just return false for empty so no checkmark appears?
         return typeof value === 'string' && value.trim().length > 0;
       default:
         return false;
@@ -150,11 +158,13 @@ const RegistrationForm: React.FC = () => {
         ? `+27${formData.phone.substring(1)}` 
         : formData.phone;
 
-      const { botField, ...rest } = formData;
+      // Extract botField to exclude it, and sendCopy to explicitly include it
+      const { botField, sendCopy, ...rest } = formData;
 
       const payload = {
         ...rest,
         phone: normalizedPhone,
+        sendCopy, // Explicitly sending the flag
         // Netlify Forms uses this 'subject' field for the email subject line
         subject: `New Student Registration: ${formData.studentName}`,
         "form-name": "tkm-registration",
@@ -174,7 +184,7 @@ const RegistrationForm: React.FC = () => {
         body: encode(payload),
       });
 
-      if (GOOGLE_SCRIPT_URL) {
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec") {
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           mode: "no-cors", 
@@ -446,7 +456,7 @@ const RegistrationForm: React.FC = () => {
                   Send me a copy of my submission
                 </label>
                 <p className={`text-slate-500 mt-2 leading-relaxed ${isSubmitting ? 'opacity-50' : ''}`}>
-                  We will send a summary of your registration details to the email address provided above.
+                  A confirmation email with your registration details will be sent to the address provided above.
                 </p>
               </div>
             </div>
