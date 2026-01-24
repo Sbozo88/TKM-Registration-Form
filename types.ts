@@ -24,6 +24,17 @@ export interface FormData {
   sendCopy: boolean;
 }
 
+export interface TeacherFormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  instruments: string[];
+  qualifications: string;
+  experience: string;
+  botField?: string;
+  sendCopy: boolean;
+}
+
 export interface ContactFormData {
   name: string;
   email: string;
@@ -46,6 +57,15 @@ export interface FormErrors {
   name?: string;
   subject?: string;
   message?: string;
+}
+
+export interface TeacherFormErrors {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  instruments?: string;
+  qualifications?: string;
+  experience?: string;
 }
 
 export const CLASS_OPTIONS = [

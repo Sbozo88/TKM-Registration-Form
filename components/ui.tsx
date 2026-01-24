@@ -222,3 +222,71 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({ id, label, options, sele
     </div>
   );
 };
+
+interface CheckboxGroupProps {
+  id?: string;
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  error?: string;
+  required?: boolean;
+}
+
+export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ id, label, options, selected, onChange, error, required }) => {
+  const groupId = id || `checkbox-group-${React.useId ? React.useId() : Math.random().toString(36).substr(2, 9)}`;
+  const labelId = `${groupId}-label`;
+  const errorId = `${groupId}-error`;
+
+  const handleToggle = (option: string) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  return (
+    <div className="w-full" role="group" aria-labelledby={labelId} aria-describedby={error ? errorId : undefined}>
+      <label id={labelId} className={`block text-sm font-medium mb-3 transition-colors ${error ? 'text-red-600 animate-shake' : 'text-slate-700'}`}>
+        {label} {required && <span className={error ? "text-red-600" : "text-red-500"} aria-hidden="true">*</span>}
+        <span className="ml-2 text-xs font-normal text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">Select multiple</span>
+      </label>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {options.map((option) => {
+          const isSelected = selected.includes(option);
+          const hasErrorStyle = error && !isSelected && selected.length === 0;
+          
+          return (
+            <button
+              key={option}
+              type="button"
+              role="checkbox"
+              aria-checked={isSelected}
+              onClick={() => handleToggle(option)}
+              className={`text-sm px-4 py-3 rounded-full border transition-all duration-200 text-left flex items-center justify-between ${
+                isSelected
+                  ? 'bg-brand-50 border-brand-500 text-brand-900 shadow-sm font-semibold'
+                  : hasErrorStyle
+                    ? 'bg-red-50 border-red-300 text-red-700 hover:border-red-400'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-brand-300 hover:bg-slate-50'
+              }`}
+            >
+              <span>{option}</span>
+              {isSelected ? (
+                <div className="bg-brand-500 rounded-md p-0.5">
+                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                   </svg>
+                </div>
+              ) : (
+                <div className="w-4 h-4 rounded-md border border-slate-300"></div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 font-medium">{error}</p>}
+    </div>
+  );
+};
