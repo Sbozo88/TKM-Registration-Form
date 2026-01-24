@@ -2,7 +2,7 @@ import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-900 text-slate-300 py-16">
+    <footer className="bg-slate-900 dark:bg-black text-slate-300 py-16 border-t border-transparent dark:border-slate-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
         
         {/* Brand Info */}
@@ -14,13 +14,13 @@ const Footer: React.FC = () => {
             Empowering the next generation through disciplined musical education and cultural enrichment.
           </p>
           <div className="flex space-x-4">
-            <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
+            <div className="w-10 h-10 bg-slate-800 dark:bg-slate-900 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
               <span className="text-xs group-hover:scale-110 transition-transform">FB</span>
             </div>
-            <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
+            <div className="w-10 h-10 bg-slate-800 dark:bg-slate-900 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
               <span className="text-xs group-hover:scale-110 transition-transform">IG</span>
             </div>
-            <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
+            <div className="w-10 h-10 bg-slate-800 dark:bg-slate-900 rounded-full flex items-center justify-center hover:bg-brand-600 transition-all cursor-pointer group">
               <span className="text-xs group-hover:scale-110 transition-transform">YT</span>
             </div>
           </div>
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
            </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-slate-800 text-center text-xs text-slate-600">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-slate-800 dark:border-slate-900 text-center text-xs text-slate-600 dark:text-slate-500">
         &copy; {new Date().getFullYear()} TKMProject Music & Cultural School. All rights reserved.
       </div>
     </footer>

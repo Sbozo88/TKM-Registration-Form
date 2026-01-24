@@ -109,11 +109,11 @@ const ClassGrid: React.FC = () => {
   }, []);
 
   return (
-    <section id="classes" className="py-20 bg-white scroll-mt-24">
+    <section id="classes" className="py-20 bg-white dark:bg-slate-900 scroll-mt-24 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Programs</h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Our Programs</h2>
+          <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             We offer specialized instruction for intermediate and advancing students. 
             Select learners may be referred to advanced conservatories upon graduation.
           </p>
@@ -123,19 +123,19 @@ const ClassGrid: React.FC = () => {
           {classes.map((cls, index) => (
             <div 
               key={cls.id} 
-              className={`bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-700 ease-out group flex flex-col transform ${
+              className={`bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-700 ease-out group flex flex-col transform ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
               }`}
               style={{ transitionDelay: `${index * 75}ms` }}
             >
-              <div className="h-10 w-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
+              <div className="h-10 w-10 bg-brand-50 dark:bg-slate-700 rounded-lg flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4 group-hover:bg-brand-600 dark:group-hover:bg-brand-500 group-hover:text-white transition-colors">
                 <ClassIcon id={cls.id} className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">{cls.name}</h3>
-              <p className="text-sm text-slate-600 mb-6 flex-grow">{cls.description}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{cls.name}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-6 flex-grow">{cls.description}</p>
               <a 
                 href="#register" 
-                className="text-sm font-semibold text-brand-600 hover:text-brand-700 flex items-center"
+                className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center"
               >
                 Apply Now
                 <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

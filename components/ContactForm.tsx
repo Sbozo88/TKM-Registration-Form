@@ -113,41 +113,41 @@ const ContactForm: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-white scroll-mt-24">
+    <section id="contact" className="py-20 bg-white dark:bg-slate-900 scroll-mt-24 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           
           {/* Left Side: Copy & CTA */}
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">Get in Touch</h2>
-            <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Get in Touch</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
               Have questions about our curriculum, faculty, or the audition process? 
               Our administrative team is here to help you navigate your musical journey.
             </p>
             
             <div className="space-y-6 mb-10">
-              <div className="flex items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <div className="w-12 h-12 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mr-4">
+              <div className="flex items-center p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
+                <div className="w-12 h-12 bg-brand-100 dark:bg-slate-700 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mr-4">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">Email Us</h4>
-                  <p className="text-slate-600 text-sm">innomok@outlook.com</p>
+                  <h4 className="font-bold text-slate-900 dark:text-white">Email Us</h4>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm">innomok@outlook.com</p>
                 </div>
               </div>
 
-              <div className="flex items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <div className="w-12 h-12 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mr-4">
+              <div className="flex items-center p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
+                <div className="w-12 h-12 bg-brand-100 dark:bg-slate-700 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mr-4">
                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">Location</h4>
-                  <p className="text-slate-600 text-sm">818 Ndebele St, Moroka, Soweto, 1818</p>
+                  <h4 className="font-bold text-slate-900 dark:text-white">Location</h4>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm">818 Ndebele St, Moroka, Soweto, 1818</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-8 bg-brand-600 rounded-2xl shadow-xl shadow-brand-200 text-white relative overflow-hidden">
+            <div className="p-8 bg-brand-600 dark:bg-brand-700 rounded-2xl shadow-xl shadow-brand-200 dark:shadow-none text-white relative overflow-hidden transition-colors">
                <div className="relative z-10">
                 <h3 className="text-xl font-bold mb-2">Ready to join us?</h3>
                 <p className="text-brand-100 mb-6 text-sm">Don't miss the 2025 intake. Spaces are filling up quickly.</p>
@@ -163,7 +163,7 @@ const ContactForm: React.FC = () => {
           </div>
 
           {/* Right Side: Form */}
-          <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 shadow-sm relative">
+          <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative transition-colors">
              {/* Netlify Honeypot Field */}
              <div className="hidden">
                <label>Don’t fill this out if you’re human: <input name="botField" value={formData.botField} onChange={handleChange} autoComplete="off" /></label>
@@ -171,16 +171,16 @@ const ContactForm: React.FC = () => {
 
             {submitStatus === 'success' ? (
                <div className="text-center py-10 animate-fade-in">
-                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-                    <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 mb-6">
+                    <svg className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
-                  <p className="text-slate-600 mb-8">We'll get back to you as soon as possible.</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Message Sent!</h3>
+                  <p className="text-slate-600 dark:text-slate-300 mb-8">We'll get back to you as soon as possible.</p>
                   <button 
                     onClick={() => setSubmitStatus('idle')}
-                    className="text-brand-600 font-medium hover:text-brand-700 underline"
+                    className="text-brand-600 dark:text-brand-400 font-medium hover:text-brand-700 dark:hover:text-brand-300 underline"
                   >
                     Send another message
                   </button>
@@ -246,7 +246,7 @@ const ContactForm: React.FC = () => {
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 bg-slate-900 text-white font-bold rounded-full hover:bg-slate-800 transition-all shadow-lg flex justify-center items-center ${
+                  className={`w-full py-4 bg-slate-900 dark:bg-slate-950 dark:border dark:border-slate-700 text-white font-bold rounded-full hover:bg-slate-800 dark:hover:bg-slate-900 transition-all shadow-lg flex justify-center items-center ${
                     isSubmitting ? 'opacity-75 cursor-wait' : 'hover:-translate-y-0.5'
                   }`}
                 >
@@ -263,7 +263,7 @@ const ContactForm: React.FC = () => {
                   )}
                 </button>
                 {submitStatus === 'error' && (
-                  <p className="text-sm text-red-600 text-center mt-4">
+                  <p className="text-sm text-red-600 dark:text-red-400 text-center mt-4">
                     Failed to send message. Please try again or email us directly.
                   </p>
                 )}

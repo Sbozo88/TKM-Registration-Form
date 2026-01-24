@@ -28,29 +28,29 @@ const Hero: React.FC = () => {
   const visibleState = "opacity-100 translate-y-0";
 
   return (
-    <section ref={containerRef} className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-pattern">
+    <section ref={containerRef} className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-pattern transition-colors duration-300">
       {/* Abstract Shapes */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-      <div className="absolute top-40 left-0 -ml-20 w-72 h-72 bg-accent-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-100 dark:bg-brand-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 dark:opacity-20 animate-pulse transition-colors duration-300"></div>
+      <div className="absolute top-40 left-0 -ml-20 w-72 h-72 bg-accent-100 dark:bg-accent-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 dark:opacity-20 transition-colors duration-300"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div 
-          className={`inline-flex flex-col sm:flex-row items-center py-2 px-4 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-6 border border-brand-100 shadow-sm ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
+          className={`inline-flex flex-col sm:flex-row items-center py-2 px-4 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-700 dark:text-brand-300 text-sm font-semibold mb-6 border border-brand-100 dark:border-slate-700 shadow-sm transition-colors ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
           style={{ transitionDelay: '100ms' }}
         >
           <span>Admissions Open for 2025</span>
-          <span className="hidden sm:inline mx-2 text-brand-300">|</span>
-          <span className="text-accent-500">Note: Space is limited, first-come, first-serve</span>
+          <span className="hidden sm:inline mx-2 text-brand-300 dark:text-slate-600">|</span>
+          <span className="text-accent-500 dark:text-accent-400">Note: Space is limited, first-come, first-serve</span>
         </div>
         <h1 
-          className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-slate-900 tracking-tight leading-tight mb-6 ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
+          className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight mb-6 ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
           style={{ transitionDelay: '200ms' }}
         >
           Cultivating Excellence <br className="hidden sm:block" />
-          in <span className="text-brand-600">Music</span> & <span className="text-accent-500">Culture</span>
+          in <span className="text-brand-600 dark:text-brand-400">Music</span> & <span className="text-accent-500">Culture</span>
         </h1>
         <p 
-          className={`mt-4 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
+          className={`mt-4 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed ${baseTransition} ${isVisible ? visibleState : hiddenState}`}
           style={{ transitionDelay: '300ms' }}
         >
           Join Johannesburg's premier intermediate-to-advanced cultural school. 
@@ -68,7 +68,7 @@ const Hero: React.FC = () => {
           </a>
           <a
             href="#classes"
-            className="px-8 py-4 bg-white text-slate-700 font-semibold rounded-full border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
+            className="px-8 py-4 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 font-semibold rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
           >
             View Classes
           </a>

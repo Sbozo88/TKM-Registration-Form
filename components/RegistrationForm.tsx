@@ -296,16 +296,16 @@ const RegistrationForm: React.FC = () => {
 
   if (submitStatus === 'success') {
     return (
-      <section id="register" className="py-24 bg-slate-50 scroll-mt-24">
+      <section id="register" className="py-24 bg-slate-50 dark:bg-slate-950 scroll-mt-24 transition-colors duration-300">
         <div className="max-w-3xl mx-auto px-4 text-center">
-            <div className="bg-green-50 border border-green-200 rounded-2xl p-10 sm:p-16 animate-fade-in shadow-sm">
-            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-8">
-                <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-10 sm:p-16 animate-fade-in shadow-sm">
+            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900 mb-8">
+                <svg className="h-10 w-10 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
-            <h2 className="text-3xl font-bold text-green-900 mb-6">Application Received</h2>
-            <p className="text-green-800 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
+            <h2 className="text-3xl font-bold text-green-900 dark:text-green-300 mb-6">Application Received</h2>
+            <p className="text-green-800 dark:text-green-200 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
                 Thank you for applying to TKM Music & Cultural School. We have received your details and will contact you within 2-3 business days.
             </p>
             <button 
@@ -321,19 +321,19 @@ const RegistrationForm: React.FC = () => {
   }
 
   return (
-    <section id="register" className="py-24 bg-slate-50 scroll-mt-24">
+    <section id="register" className="py-24 bg-slate-50 dark:bg-slate-950 scroll-mt-24 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-slate-900 mb-6">Join TKMProject</h2>
+          <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-6">Join TKMProject</h2>
           
           {/* Toggle Switch */}
-          <div className="inline-flex bg-white p-1 rounded-full border border-slate-200 shadow-sm mb-6">
+          <div className="inline-flex bg-white dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm mb-6 transition-colors">
               <button
                   onClick={() => setFormType('student')}
                   className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                       formType === 'student' 
                       ? 'bg-brand-600 text-white shadow-md' 
-                      : 'text-slate-600 hover:bg-slate-50'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}
               >
                   Student Registration
@@ -343,14 +343,14 @@ const RegistrationForm: React.FC = () => {
                   className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                       formType === 'teacher' 
                       ? 'bg-brand-600 text-white shadow-md' 
-                      : 'text-slate-600 hover:bg-slate-50'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}
               >
                   Teacher Application
               </button>
           </div>
 
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             {formType === 'student' 
                 ? "Secure your spot for the upcoming term. Your information is kept strictly confidential."
                 : "Passionate about music education? Apply to join our faculty of expert instructors."}
@@ -359,7 +359,7 @@ const RegistrationForm: React.FC = () => {
 
         <form 
             onSubmit={handleSubmit} 
-            className="bg-white shadow-xl shadow-slate-200 border border-slate-100 rounded-2xl p-8 sm:p-16 space-y-14 relative"
+            className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200 dark:shadow-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl p-8 sm:p-16 space-y-14 relative transition-colors duration-300"
             data-netlify="true" 
             name={formType === 'student' ? "tkm-registration" : "tkm-teacher-application"}
             noValidate
@@ -367,7 +367,7 @@ const RegistrationForm: React.FC = () => {
           {/* Success Flash Overlay */}
           {showSuccessFlash && (
             <div className="absolute top-0 left-0 w-full p-4 z-10">
-                <div className="rounded-xl bg-green-50 p-6 border border-green-200 animate-fade-in shadow-lg" role="status" aria-live="polite">
+                <div className="rounded-xl bg-green-50 dark:bg-green-900/40 p-6 border border-green-200 dark:border-green-800 animate-fade-in shadow-lg" role="status" aria-live="polite">
                 <div className="flex">
                     <div className="flex-shrink-0">
                     <svg className="h-6 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -375,8 +375,8 @@ const RegistrationForm: React.FC = () => {
                     </svg>
                     </div>
                     <div className="ml-4">
-                    <h3 className="text-base font-medium text-green-800">Submission successful</h3>
-                    <div className="mt-2 text-sm text-green-700">
+                    <h3 className="text-base font-medium text-green-800 dark:text-green-300">Submission successful</h3>
+                    <div className="mt-2 text-sm text-green-700 dark:text-green-400">
                         <p>Finalizing your application...</p>
                     </div>
                     </div>
@@ -393,7 +393,7 @@ const RegistrationForm: React.FC = () => {
                 </div>
                 
                 <div className="space-y-8">
-                    <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-4">Student Information</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-4">Student Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Input 
                         label="Parent / Guardian Name" 
@@ -455,7 +455,7 @@ const RegistrationForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-8">
-                    <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-4">Class Preferences</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-4">Class Preferences</h3>
                     <div className={isSubmitting ? 'opacity-60 pointer-events-none' : ''}>
                         <RadioGroup 
                             id="classes-group"
@@ -467,30 +467,30 @@ const RegistrationForm: React.FC = () => {
                             required
                         />
                     </div>
-                    <div className="bg-brand-50 border border-brand-100 rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="bg-brand-50 dark:bg-slate-800 border border-brand-100 dark:border-slate-700 rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
                     <div>
-                        <h4 className="text-brand-900 font-semibold mb-1">Standard Schedule</h4>
-                        <p className="text-brand-700 text-sm">All classes are scheduled for fixed weekly slots.</p>
+                        <h4 className="text-brand-900 dark:text-brand-300 font-semibold mb-1">Standard Schedule</h4>
+                        <p className="text-brand-700 dark:text-slate-400 text-sm">All classes are scheduled for fixed weekly slots.</p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-10">
                         <div className="flex items-center">
-                            <svg className="w-5 h-5 text-brand-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5 text-brand-600 dark:text-brand-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span className="font-medium text-slate-800">Saturday</span>
+                            <span className="font-medium text-slate-800 dark:text-slate-200">Saturday</span>
                         </div>
                         <div className="flex items-center">
-                            <svg className="w-5 h-5 text-brand-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5 text-brand-600 dark:text-brand-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="font-medium text-slate-800">8:30 – 10:30</span>
+                            <span className="font-medium text-slate-800 dark:text-slate-200">8:30 – 10:30</span>
                         </div>
                     </div>
                     </div>
                 </div>
 
                 <div className="space-y-8">
-                    <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-4">Address & Contact Details</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-4">Address & Contact Details</h3>
                     <TextArea 
                         label="Full Residential Address" 
                         name="address" 
@@ -547,7 +547,7 @@ const RegistrationForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-8">
-                    <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-4">Personal Details</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-4">Personal Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Input 
                             label="Full Name" 
@@ -586,7 +586,7 @@ const RegistrationForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-8">
-                    <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-4">Expertise</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-4">Expertise</h3>
                      <div className={isSubmitting ? 'opacity-60 pointer-events-none' : ''}>
                         <CheckboxGroup 
                             id="instruments-group"
@@ -627,7 +627,7 @@ const RegistrationForm: React.FC = () => {
           )}
 
           {/* Section 4: Shared Consent & Submit */}
-          <div className="pt-8 border-t border-slate-100 space-y-6">
+          <div className="pt-8 border-t border-slate-100 dark:border-slate-700 space-y-6">
             <div className="flex items-start">
               <div className="flex items-center h-5">
                 <input
@@ -637,11 +637,11 @@ const RegistrationForm: React.FC = () => {
                   checked={formType === 'student' ? formData.sendCopy : teacherData.sendCopy}
                   onChange={formType === 'student' ? handleStudentChange : handleTeacherChange}
                   disabled={isSubmitting}
-                  className="focus:ring-brand-500 h-5 w-5 text-brand-600 border-gray-300 rounded cursor-pointer disabled:opacity-50"
+                  className="focus:ring-brand-500 h-5 w-5 text-brand-600 border-gray-300 dark:border-slate-600 rounded cursor-pointer disabled:opacity-50 dark:bg-slate-800"
                 />
               </div>
               <div className="ml-4 text-sm">
-                <label htmlFor="sendCopy" className={`font-medium text-slate-700 cursor-pointer ${isSubmitting ? 'opacity-50' : ''}`}>
+                <label htmlFor="sendCopy" className={`font-medium text-slate-700 dark:text-slate-300 cursor-pointer ${isSubmitting ? 'opacity-50' : ''}`}>
                   Send me a copy of my {formType === 'student' ? 'registration' : 'application'}
                 </label>
               </div>
@@ -657,14 +657,14 @@ const RegistrationForm: React.FC = () => {
                      checked={formData.consent}
                      onChange={handleStudentChange}
                      disabled={isSubmitting}
-                     className="focus:ring-brand-500 h-5 w-5 text-brand-600 border-gray-300 rounded cursor-pointer disabled:opacity-50"
+                     className="focus:ring-brand-500 h-5 w-5 text-brand-600 border-gray-300 dark:border-slate-600 rounded cursor-pointer disabled:opacity-50 dark:bg-slate-800"
                    />
                  </div>
                  <div className="ml-4 text-sm">
-                   <label htmlFor="consent" className={`font-medium text-slate-700 cursor-pointer ${isSubmitting ? 'opacity-50' : ''}`}>
+                   <label htmlFor="consent" className={`font-medium text-slate-700 dark:text-slate-300 cursor-pointer ${isSubmitting ? 'opacity-50' : ''}`}>
                      I consent to the processing of personal information.
                    </label>
-                   {errors.consent && <p className="mt-2 text-red-600 font-medium text-xs">{errors.consent}</p>}
+                   {errors.consent && <p className="mt-2 text-red-600 dark:text-red-400 font-medium text-xs">{errors.consent}</p>}
                  </div>
                </div>
             )}
@@ -695,7 +695,7 @@ const RegistrationForm: React.FC = () => {
               )}
             </button>
             {submitStatus === 'error' && (
-              <p className="mt-6 text-center text-red-600">
+              <p className="mt-6 text-center text-red-600 dark:text-red-400">
                 Something went wrong. Please try again or contact support.
               </p>
             )}
