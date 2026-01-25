@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { FormData, FormErrors, TeacherFormData, TeacherFormErrors, CLASS_OPTIONS } from '../types';
 import { Input, Select, TextArea, RadioGroup, CheckboxGroup } from './ui';
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgokvayk";
 
 const INITIAL_DATA: FormData = {
   parentName: '',
@@ -95,7 +95,8 @@ const RegistrationForm: React.FC = () => {
       case 'classes':
         return !!value;
       case 'phone':
-        return /^(\+27|0)[0-9]{9}$/.test((value || '').replace(/\s/g, ''));
+        // Allow spaces, dashes, and parentheses: e.g. 082 123 4567, (082) 123-4567, +27 82 123 4567
+        return /^(\+27|0)\d{9}$/.test((value || '').replace(/[\s\-\(\)]/g, ''));
       case 'email':
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
       case 'consent':
@@ -130,7 +131,7 @@ const RegistrationForm: React.FC = () => {
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!checkStudentFieldValidity('phone', formData.phone)) {
-      newErrors.phone = "Invalid SA phone format (e.g., 0821234567)";
+      newErrors.phone = "Invalid SA phone (e.g. 082 123 4567)";
     }
 
     if (!formData.email.trim()) {
@@ -179,7 +180,8 @@ const RegistrationForm: React.FC = () => {
           case 'email':
               return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
           case 'phone':
-              return /^(\+27|0)[0-9]{9}$/.test((value || '').replace(/\s/g, ''));
+              // Allow spaces, dashes, and parentheses
+              return /^(\+27|0)\d{9}$/.test((value || '').replace(/[\s\-\(\)]/g, ''));
           case 'instruments':
               return Array.isArray(value) && value.length > 0;
           default:
@@ -193,7 +195,13 @@ const RegistrationForm: React.FC = () => {
 
       if (!checkTeacherFieldValidity('fullName', teacherData.fullName)) newErrors.fullName = "Full Name is required";
       if (!checkTeacherFieldValidity('email', teacherData.email)) newErrors.email = "Invalid email address";
-      if (!checkTeacherFieldValidity('phone', teacherData.phone)) newErrors.phone = "Invalid phone number";
+      
+      if (!teacherData.phone.trim()) {
+        newErrors.phone = "Phone number is required";
+      } else if (!checkTeacherFieldValidity('phone', teacherData.phone)) {
+        newErrors.phone = "Invalid SA phone (e.g. 082 123 4567)";
+      }
+
       if (!checkTeacherFieldValidity('instruments', teacherData.instruments)) newErrors.instruments = "Select at least one instrument";
       if (!checkTeacherFieldValidity('qualifications', teacherData.qualifications)) newErrors.qualifications = "Qualifications are required";
       if (!checkTeacherFieldValidity('experience', teacherData.experience)) newErrors.experience = "Experience details are required";
@@ -221,56 +229,49 @@ const RegistrationForm: React.FC = () => {
 
     try {
       let payload: any = {};
-      let formName = "";
+      let subject = "";
 
       if (formType === 'student') {
-        const normalizedPhone = formData.phone.startsWith('0') ? `+27${formData.phone.substring(1)}` : formData.phone;
+        const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+        const normalizedPhone = cleanPhone.startsWith('0') ? `+27${cleanPhone.substring(1)}` : cleanPhone;
         const { botField, sendCopy, ...rest } = formData;
-        formName = "tkm-registration";
+        subject = `New Student Registration: ${formData.studentName}`;
         payload = {
             ...rest,
             phone: normalizedPhone,
             sendCopy,
-            subject: `New Student Registration: ${formData.studentName}`,
-            "form-name": formName,
-            "bot-field": botField,
+            subject,
+            _subject: subject, // Formspree specific subject
             timestamp: new Date().toISOString()
         };
       } else {
-        const normalizedPhone = teacherData.phone.startsWith('0') ? `+27${teacherData.phone.substring(1)}` : teacherData.phone;
+        const cleanPhone = teacherData.phone.replace(/[\s\-\(\)]/g, '');
+        const normalizedPhone = cleanPhone.startsWith('0') ? `+27${cleanPhone.substring(1)}` : cleanPhone;
         const { botField, sendCopy, ...rest } = teacherData;
-        formName = "tkm-teacher-application";
+        subject = `New Teacher Application: ${teacherData.fullName}`;
         payload = {
             ...rest,
             phone: normalizedPhone,
-            instruments: teacherData.instruments.join(', '), // Join array for Netlify plain text
+            instruments: teacherData.instruments.join(', '), // Join array for easier reading
             sendCopy,
-            subject: `New Teacher Application: ${teacherData.fullName}`,
-            "form-name": formName,
-            "bot-field": botField,
+            subject,
+            _subject: subject, // Formspree specific subject
             timestamp: new Date().toISOString()
         };
       }
 
-      const encode = (data: any) => {
-        return Object.keys(data)
-          .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-          .join("&");
-      };
-
-      await fetch("/", {
+      // Use Formspree instead of internal backend
+      const response = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode(payload),
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes("script.google.com")) {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors", 
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      if (!response.ok) {
+        throw new Error('Form submission failed');
       }
 
       setShowSuccessFlash(true);
@@ -360,8 +361,6 @@ const RegistrationForm: React.FC = () => {
         <form 
             onSubmit={handleSubmit} 
             className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200 dark:shadow-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl p-8 sm:p-16 space-y-14 relative transition-colors duration-300"
-            data-netlify="true" 
-            name={formType === 'student' ? "tkm-registration" : "tkm-teacher-application"}
             noValidate
         >
           {/* Success Flash Overlay */}

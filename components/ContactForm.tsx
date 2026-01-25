@@ -2,9 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Input, TextArea } from './ui';
 import { ContactFormData, FormErrors } from '../types';
 
-// Optional: Set your Google Apps Script Web App URL here
-// const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/deployment-id/exec";
-const GOOGLE_SCRIPT_URL = "";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgokvayk";
 
 const INITIAL_DATA: ContactFormData = {
   name: '',
@@ -69,37 +67,27 @@ const ContactForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const encode = (data: any) => {
-        return Object.keys(data)
-          .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-          .join("&");
-      };
-
       // Destructure to separate the internal botField from the payload
       const { botField, ...rest } = formData;
 
       const payload = {
-        "form-name": "tkm-contact",
-        "bot-field": botField, // Map to standard Netlify honeypot name
         ...rest,
+        _subject: `New Contact Inquiry: ${formData.subject}`, // Formspree specific
         timestamp: new Date().toISOString()
       };
 
-      // 1. Netlify Submission
-      await fetch("/", {
+      // 1. Formspree Submission
+      const response = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode(payload),
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload),
       });
 
-      // 2. (Optional) Google Apps Script Submission
-      if (GOOGLE_SCRIPT_URL) {
-         await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors", 
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      if (!response.ok) {
+        throw new Error('Form submission failed');
       }
 
       setSubmitStatus('success');
@@ -188,7 +176,6 @@ const ContactForm: React.FC = () => {
             ) : (
               <form 
                 name="tkm-contact"
-                data-netlify="true"
                 onSubmit={handleSubmit} 
                 className="space-y-6"
                 noValidate
