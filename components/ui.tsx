@@ -290,3 +290,148 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ id, label, options
     </div>
   );
 };
+
+interface DateSelectProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: any) => void;
+  error?: string;
+  helperText?: string;
+  isValid?: boolean;
+  required?: boolean;
+  minYear?: number;
+  maxYear?: number;
+  disabled?: boolean;
+}
+
+export const DateSelect: React.FC<DateSelectProps> = ({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  helperText,
+  isValid,
+  required,
+  minYear = 1900,
+  maxYear = new Date().getFullYear(),
+  disabled
+}) => {
+  const getInitialParts = (val: string) => {
+    if (!val) return { d: '', m: '', y: '' };
+    const date = new Date(val);
+    if (isNaN(date.getTime())) return { d: '', m: '', y: '' };
+    return {
+      d: date.getDate().toString(),
+      m: (date.getMonth() + 1).toString(),
+      y: date.getFullYear().toString()
+    };
+  };
+
+  const [parts, setParts] = React.useState(getInitialParts(value));
+
+  React.useEffect(() => {
+    setParts(getInitialParts(value));
+  }, [value]);
+
+  const months = [
+    { value: '1', label: 'January' }, { value: '2', label: 'February' },
+    { value: '3', label: 'March' }, { value: '4', label: 'April' },
+    { value: '5', label: 'May' }, { value: '6', label: 'June' },
+    { value: '7', label: 'July' }, { value: '8', label: 'August' },
+    { value: '9', label: 'September' }, { value: '10', label: 'October' },
+    { value: '11', label: 'November' }, { value: '12', label: 'December' },
+  ];
+
+  const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => (maxYear - i).toString());
+
+  const getDaysInMonth = (y: string, m: string) => {
+    return new Date(parseInt(y || new Date().getFullYear().toString()), parseInt(m || '1'), 0).getDate();
+  };
+  
+  const daysInMonth = getDaysInMonth(parts.y, parts.m);
+  const days = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+
+  const handleChange = (field: 'd' | 'm' | 'y', val: string) => {
+    const newParts = { ...parts, [field]: val };
+    
+    // Auto-adjust day if needed
+    const dInM = getDaysInMonth(newParts.y || parts.y, newParts.m || parts.m);
+    if (newParts.d && parseInt(newParts.d) > dInM) {
+        newParts.d = dInM.toString();
+    }
+
+    setParts(newParts);
+
+    if (newParts.d && newParts.m && newParts.y) {
+       const dateStr = `${newParts.y}-${newParts.m.padStart(2, '0')}-${newParts.d.padStart(2, '0')}`;
+       onChange({ target: { name, value: dateStr } });
+    } else {
+       onChange({ target: { name, value: '' } });
+    }
+  };
+
+  const baseSelectClass = `w-full px-3 py-3 rounded-lg border text-base appearance-none outline-none transition-all dark:bg-slate-900 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`;
+  const stateClass = error 
+    ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500' 
+    : isValid
+      ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500'
+      : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500';
+
+  const selectClass = `${baseSelectClass} ${stateClass}`;
+
+  const Chevron = () => (
+    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+        <svg className={`w-4 h-4 ${error ? 'text-red-500' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
+  );
+
+  return (
+    <div className="w-full">
+      <label className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'}`}>
+         {label} {required && <span className={error ? "text-red-600 dark:text-red-400" : "text-red-500 dark:text-red-400"}>*</span>}
+      </label>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+         <div className="relative">
+            <select 
+              value={parts.d} 
+              onChange={e => handleChange('d', e.target.value)} 
+              className={selectClass}
+              disabled={disabled}
+            >
+                <option value="">Day</option>
+                {days.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <Chevron />
+         </div>
+         <div className="relative">
+            <select 
+              value={parts.m} 
+              onChange={e => handleChange('m', e.target.value)} 
+              className={selectClass}
+              disabled={disabled}
+            >
+                <option value="">Month</option>
+                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+            <Chevron />
+         </div>
+         <div className="relative">
+            <select 
+              value={parts.y} 
+              onChange={e => handleChange('y', e.target.value)} 
+              className={selectClass}
+              disabled={disabled}
+            >
+                <option value="">Year</option>
+                {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <Chevron />
+         </div>
+      </div>
+       {helperText && !error && <p className={`mt-1.5 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
+       {error && <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
+    </div>
+  );
+};

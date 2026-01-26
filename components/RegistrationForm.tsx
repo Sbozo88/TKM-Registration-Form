@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { FormData, FormErrors, TeacherFormData, TeacherFormErrors, CLASS_OPTIONS } from '../types';
-import { Input, Select, TextArea, RadioGroup, CheckboxGroup } from './ui';
+import { Input, Select, TextArea, RadioGroup, CheckboxGroup, DateSelect } from './ui';
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgokvayk";
 
@@ -43,8 +43,7 @@ const RegistrationForm: React.FC = () => {
   const [teacherErrors, setTeacherErrors] = useState<TeacherFormErrors>({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [showSuccessFlash, setShowSuccessFlash] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'error'>('idle');
 
   // --- STUDENT LOGIC ---
 
@@ -236,12 +235,15 @@ const RegistrationForm: React.FC = () => {
         const normalizedPhone = cleanPhone.startsWith('0') ? `+27${cleanPhone.substring(1)}` : cleanPhone;
         const { botField, sendCopy, ...rest } = formData;
         subject = `New Student Registration: ${formData.studentName}`;
+        
         payload = {
             ...rest,
             phone: normalizedPhone,
             sendCopy,
             subject,
             _subject: subject, // Formspree specific subject
+            _replyto: formData.email, // Formspree reply-to
+            submission_type: 'Student', // For email template logic
             timestamp: new Date().toISOString()
         };
       } else {
@@ -249,6 +251,7 @@ const RegistrationForm: React.FC = () => {
         const normalizedPhone = cleanPhone.startsWith('0') ? `+27${cleanPhone.substring(1)}` : cleanPhone;
         const { botField, sendCopy, ...rest } = teacherData;
         subject = `New Teacher Application: ${teacherData.fullName}`;
+        
         payload = {
             ...rest,
             phone: normalizedPhone,
@@ -256,6 +259,8 @@ const RegistrationForm: React.FC = () => {
             sendCopy,
             subject,
             _subject: subject, // Formspree specific subject
+            _replyto: teacherData.email, // Formspree reply-to
+            submission_type: 'Teacher', // For email template logic
             timestamp: new Date().toISOString()
         };
       }
@@ -274,19 +279,8 @@ const RegistrationForm: React.FC = () => {
         throw new Error('Form submission failed');
       }
 
-      setShowSuccessFlash(true);
-      const registerSection = document.getElementById('register');
-      if (registerSection) {
-        registerSection.scrollIntoView({ behavior: 'smooth' });
-      }
-
-      setTimeout(() => {
-        setSubmitStatus('success');
-        setFormData(INITIAL_DATA);
-        setTeacherData(INITIAL_TEACHER_DATA);
-        setShowSuccessFlash(false);
-        setIsSubmitting(false);
-      }, 2000);
+      // Redirect to thank you page on success
+      window.location.href = "/thanks.html";
 
     } catch (error) {
       console.error("Submission error", error);
@@ -294,32 +288,6 @@ const RegistrationForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (submitStatus === 'success') {
-    return (
-      <section id="register" className="py-24 bg-slate-50 dark:bg-slate-950 scroll-mt-24 transition-colors duration-300">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-10 sm:p-16 animate-fade-in shadow-sm">
-            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900 mb-8">
-                <svg className="h-10 w-10 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h2 className="text-3xl font-bold text-green-900 dark:text-green-300 mb-6">Application Received</h2>
-            <p className="text-green-800 dark:text-green-200 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
-                Thank you for applying to TKM Music & Cultural School. We have received your details and will contact you within 2-3 business days.
-            </p>
-            <button 
-                onClick={() => setSubmitStatus('idle')}
-                className="px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 shadow-sm transition-colors"
-            >
-                Submit another application
-            </button>
-            </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section id="register" className="py-24 bg-slate-50 dark:bg-slate-950 scroll-mt-24 transition-colors duration-300">
@@ -363,27 +331,6 @@ const RegistrationForm: React.FC = () => {
             className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200 dark:shadow-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl p-8 sm:p-16 space-y-14 relative transition-colors duration-300"
             noValidate
         >
-          {/* Success Flash Overlay */}
-          {showSuccessFlash && (
-            <div className="absolute top-0 left-0 w-full p-4 z-10">
-                <div className="rounded-xl bg-green-50 dark:bg-green-900/40 p-6 border border-green-200 dark:border-green-800 animate-fade-in shadow-lg" role="status" aria-live="polite">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    </div>
-                    <div className="ml-4">
-                    <h3 className="text-base font-medium text-green-800 dark:text-green-300">Submission successful</h3>
-                    <div className="mt-2 text-sm text-green-700 dark:text-green-400">
-                        <p>Finalizing your application...</p>
-                    </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-          )}
-
           {formType === 'student' ? (
               // --- STUDENT FORM CONTENT ---
               <>
@@ -414,16 +361,17 @@ const RegistrationForm: React.FC = () => {
                         required 
                         disabled={isSubmitting}
                     />
-                    <Input 
+                    <DateSelect 
                         label="Student Date of Birth" 
                         name="studentDob" 
-                        type="date" 
                         value={formData.studentDob} 
                         onChange={handleStudentChange} 
                         error={errors.studentDob}
                         isValid={checkStudentFieldValidity('studentDob', formData.studentDob)}
                         helperText="Must be between 6 and 12 years old"
                         required 
+                        minYear={2010}
+                        maxYear={2023}
                         disabled={isSubmitting}
                     />
                     <Select 
@@ -679,15 +627,11 @@ const RegistrationForm: React.FC = () => {
             >
               {isSubmitting ? (
                 <span className="flex items-center">
-                  {showSuccessFlash ? (
-                    <svg className="w-5 h-5 mr-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  ) : (
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  )}
-                  {showSuccessFlash ? 'Success!' : 'Processing...'}
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
                 </span>
               ) : (
                 formType === 'student' ? 'Submit Registration' : 'Submit Application'

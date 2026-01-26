@@ -16,7 +16,7 @@ const ContactForm: React.FC = () => {
   const [formData, setFormData] = useState<ContactFormData>(INITIAL_DATA);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'error'>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -90,12 +90,12 @@ const ContactForm: React.FC = () => {
         throw new Error('Form submission failed');
       }
 
-      setSubmitStatus('success');
-      setFormData(INITIAL_DATA);
+      // Redirect to thank you page on success
+      window.location.href = "/thanks.html";
+
     } catch (error) {
       console.error("Submission error", error);
       setSubmitStatus('error');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -157,23 +157,6 @@ const ContactForm: React.FC = () => {
                <label>Don’t fill this out if you’re human: <input name="botField" value={formData.botField} onChange={handleChange} autoComplete="off" /></label>
              </div>
 
-            {submitStatus === 'success' ? (
-               <div className="text-center py-10 animate-fade-in">
-                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 mb-6">
-                    <svg className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Message Sent!</h3>
-                  <p className="text-slate-600 dark:text-slate-300 mb-8">We'll get back to you as soon as possible.</p>
-                  <button 
-                    onClick={() => setSubmitStatus('idle')}
-                    className="text-brand-600 dark:text-brand-400 font-medium hover:text-brand-700 dark:hover:text-brand-300 underline"
-                  >
-                    Send another message
-                  </button>
-               </div>
-            ) : (
               <form 
                 name="tkm-contact"
                 onSubmit={handleSubmit} 
@@ -255,7 +238,6 @@ const ContactForm: React.FC = () => {
                   </p>
                 )}
               </form>
-            )}
           </div>
 
         </div>
