@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
+import { auth } from '../firebase/config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 interface AdminLoginProps {
     onLogin: () => void;
 }
 
 const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simple client-side check. In a real app, use Firebase Auth.
-        // Password is "admin123" for this demo
-        if (password === 'admin123') {
-            onLogin();
-        } else {
-            setError(true);
+        setError('');
+        setLoading(true);
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            onLogin(); // App.tsx listens to auth state, but this doesn't hurt.
+        } catch (err: any) {
+            console.error(err);
+            if (err.code === 'auth/invalid-credential') {
+                setError('Invalid email or password.');
+            } else if (err.code === 'auth/too-many-requests') {
+                setError('Too many failed attempts. Try again later.');
+            } else {
+                setError('Login failed. Please check your credentials.');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -24,21 +39,34 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
             <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Admin Access</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                        setError('');
+                    }}
+                    placeholder="Admin Email"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                    required
+                />
+                <input
                     type="password"
                     value={password}
                     onChange={(e) => {
                         setPassword(e.target.value);
-                        setError(false);
+                        setError('');
                     }}
-                    placeholder="Enter Admin Password"
+                    placeholder="Password"
                     className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                    required
                 />
-                {error && <p className="text-red-600 text-sm">Incorrect password</p>}
+                {error && <p className="text-red-600 text-sm">{error}</p>}
                 <button
                     type="submit"
-                    className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                    disabled={loading}
+                    className={`w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors ${loading ? 'opacity-70 cursor-wait' : ''}`}
                 >
-                    Login
+                    {loading ? 'Authenticating...' : 'Login'}
                 </button>
             </form>
         </div>

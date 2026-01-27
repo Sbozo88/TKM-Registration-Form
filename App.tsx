@@ -8,10 +8,13 @@ import Footer from './components/Footer';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import { ThemeProvider } from './components/ThemeContext';
+import { auth } from './firebase/config';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 function App() {
   const [isAdminRoute, setIsAdminRoute] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check initial path
@@ -25,21 +28,48 @@ function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAdminLoggedIn(!!user);
+      setIsLoading(false);
+    });
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      unsubscribe();
+    };
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsAdminLoggedIn(false);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   if (isAdminRoute) {
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <div className="animate-spin h-10 w-10 border-4 border-brand-500 border-t-transparent rounded-full"></div>
+        </div>
+      );
+    }
+
     if (isAdminLoggedIn) {
       return (
         <ThemeProvider>
-          <AdminDashboard onLogout={() => setIsAdminLoggedIn(false)} />
+          <AdminDashboard onLogout={handleLogout} />
         </ThemeProvider>
       );
     }
     return (
       <ThemeProvider>
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-          <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} />
+          <AdminLogin onLogin={() => {/* State handled by onAuthStateChanged */ }} />
         </div>
       </ThemeProvider>
     );

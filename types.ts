@@ -37,6 +37,7 @@ export interface TeacherFormData {
   botField?: string;
   sendCopy: boolean;
   cvFile?: File | null;
+  consent: boolean;
 }
 
 export interface ContactFormData {
@@ -73,6 +74,7 @@ export interface TeacherFormErrors {
   qualifications?: string;
   experience?: string;
   cvFile?: string;
+  consent?: string;
 }
 
 export const CLASS_OPTIONS = [

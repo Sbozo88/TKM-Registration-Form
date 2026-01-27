@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { TeacherFormData, TeacherFormErrors, CLASS_OPTIONS } from '../types';
 import { Input, TextArea, CheckboxGroup } from './ui';
-import { db } from '../firebase/config';
+import { db, storage } from '../firebase/config';
 import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgokvayk";
 
@@ -16,6 +17,7 @@ const INITIAL_TEACHER_DATA: TeacherFormData = {
     botField: '',
     sendCopy: false,
     cvFile: null,
+    consent: false,
 };
 
 const TeacherApplicationForm: React.FC = () => {
@@ -23,6 +25,19 @@ const TeacherApplicationForm: React.FC = () => {
     const [teacherErrors, setTeacherErrors] = useState<TeacherFormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    // ... (rest of the component)
+
+    // ... inside render ...
+    {
+        submitStatus === 'error' && (
+            <div className="mt-6 text-center">
+                <p className="text-red-600 dark:text-red-400 font-medium">submission failed</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{errorMessage}</p>
+            </div>
+        )
+    }
 
     const formatPhoneNumber = (value: string) => {
         const phoneNumber = value.replace(/[^\d]/g, '');
@@ -101,6 +116,9 @@ const TeacherApplicationForm: React.FC = () => {
         if (!checkTeacherFieldValidity('instruments', teacherData.instruments)) newErrors.instruments = "Select at least one instrument";
         if (!checkTeacherFieldValidity('qualifications', teacherData.qualifications)) newErrors.qualifications = "Qualifications are required";
         if (!checkTeacherFieldValidity('experience', teacherData.experience)) newErrors.experience = "Experience details are required";
+
+        if (!teacherData.consent) newErrors.consent = "You must consent to continue";
+
         // Optional CV check - force if desired, or keep optional
         // if (!teacherData.cvFile) newErrors.cvFile = "Please upload your CV";
 
@@ -123,32 +141,40 @@ const TeacherApplicationForm: React.FC = () => {
         try {
             const cleanPhone = teacherData.phone.replace(/[\s\-\(\)]/g, '');
             const normalizedPhone = cleanPhone.startsWith('0') ? `+27${cleanPhone.substring(1)}` : cleanPhone;
-            const { botField, sendCopy, ...rest } = teacherData;
+            const { botField, sendCopy, cvFile, ...rest } = teacherData;
             const subject = `New Teacher Application: ${teacherData.fullName}`;
 
-            // Formspree with file upload requires FormData object instead of JSON
-            const formData = new FormData();
-            Object.keys(rest).forEach(key => {
-                const value = rest[key as keyof typeof rest];
-                if (Array.isArray(value)) {
-                    formData.append(key, value.join(', '));
-                } else if (value !== null && value !== undefined) {
-                    formData.append(key, value.toString());
-                }
-            });
+            let cvDownloadUrl = '';
 
-            formData.append('phone', normalizedPhone);
-            formData.append('subject', subject);
-            formData.append('_subject', subject);
-            formData.append('_replyto', teacherData.email);
-            formData.append('submission_type', 'Teacher');
-            formData.append('timestamp', new Date().toISOString());
-
+            // 1. Upload CV to Firebase Storage (if exists)
             if (teacherData.cvFile) {
-                formData.append('cvFile', teacherData.cvFile);
+                try {
+                    const storageRef = ref(storage, `cvs/${Date.now()}_${teacherData.cvFile.name}`);
+                    const snapshot = await uploadBytes(storageRef, teacherData.cvFile);
+                    cvDownloadUrl = await getDownloadURL(snapshot.ref);
+                } catch (storageError) {
+                    console.error("CV Upload failed:", storageError);
+                    // Decide if we should blocking or continue without CV. 
+                    // Let's block because if they uploaded a CV they expect it to be sent.
+                    throw new Error("Failed to upload CV. Please try again.");
+                }
             }
 
-            // 1. Try to Save to Firestore (Best Effort)
+            // 2. Prepare Formspree Payload (Send URL, not file)
+            // Formspree (Free) doesn't allow files, but allows JSON/Text
+            const payload = {
+                ...rest,
+                phone: normalizedPhone,
+                instruments: teacherData.instruments.join(', '),
+                subject: subject,
+                _subject: subject,
+                _replyto: teacherData.email,
+                submission_type: 'Teacher',
+                timestamp: new Date().toISOString(),
+                cv_link: cvDownloadUrl || 'No CV uploaded'
+            };
+
+            // 3. Try to Save to Firestore (Best Effort)
             try {
                 await addDoc(collection(db, "teacher_applications"), {
                     ...rest,
@@ -156,6 +182,7 @@ const TeacherApplicationForm: React.FC = () => {
                     instruments: teacherData.instruments,
                     email: teacherData.email,
                     hasCv: !!teacherData.cvFile,
+                    cvUrl: cvDownloadUrl,
                     status: 'new',
                     submittedAt: new Date()
                 });
@@ -163,25 +190,27 @@ const TeacherApplicationForm: React.FC = () => {
                 console.error("Firestore write failed (non-fatal):", firestoreError);
             }
 
-            // 2. Send to Formspree
+            // 4. Send to Formspree (as JSON now!)
             const response = await fetch(FORMSPREE_ENDPOINT, {
                 method: "POST",
                 headers: {
+                    "Content-Type": "application/json",
                     "Accept": "application/json"
-                    // Content-Type header must NOT be set when sending FormData, browser sets it with boundary
                 },
-                body: formData,
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
-                throw new Error('Form submission failed');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Form submission failed');
             }
 
             window.location.href = "/thanks.html";
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Submission error", error);
             setSubmitStatus('error');
+            setErrorMessage(error.message || 'Something went wrong. Please check your connection and file size.');
             setIsSubmitting(false);
         }
     };
@@ -324,6 +353,26 @@ const TeacherApplicationForm: React.FC = () => {
                         </label>
                     </div>
                 </div>
+
+                <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                        <input
+                            id="consent"
+                            name="consent"
+                            type="checkbox"
+                            checked={teacherData.consent}
+                            onChange={handleTeacherChange}
+                            disabled={isSubmitting}
+                            className="focus:ring-brand-500 h-5 w-5 text-brand-600 border-gray-300 dark:border-slate-600 rounded cursor-pointer disabled:opacity-50 dark:bg-slate-800"
+                        />
+                    </div>
+                    <div className="ml-4 text-sm">
+                        <label htmlFor="consent" className={`font-medium text-slate-700 dark:text-slate-300 cursor-pointer ${isSubmitting ? 'opacity-50' : ''}`}>
+                            I consent to the processing of personal information.
+                        </label>
+                        {teacherErrors.consent && <p className="mt-2 text-red-600 dark:text-red-400 font-medium text-xs">{teacherErrors.consent}</p>}
+                    </div>
+                </div>
             </div>
 
             <div className="pt-8">
@@ -346,9 +395,10 @@ const TeacherApplicationForm: React.FC = () => {
                     )}
                 </button>
                 {submitStatus === 'error' && (
-                    <p className="mt-6 text-center text-red-600 dark:text-red-400">
-                        Something went wrong. Please try again or contact support.
-                    </p>
+                    <div className="mt-6 text-center">
+                        <p className="text-red-600 dark:text-red-400 font-medium">Something went wrong.</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{errorMessage}</p>
+                    </div>
                 )}
             </div>
         </form>
