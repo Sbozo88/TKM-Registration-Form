@@ -22,6 +22,9 @@ export interface FormData {
   consent: boolean;
   botField?: string;
   sendCopy: boolean;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  medicalInfo: string;
 }
 
 export interface TeacherFormData {
@@ -33,6 +36,8 @@ export interface TeacherFormData {
   experience: string;
   botField?: string;
   sendCopy: boolean;
+  cvFile?: File | null;
+  consent: boolean;
 }
 
 export interface ContactFormData {
@@ -53,6 +58,8 @@ export interface FormErrors {
   phone?: string;
   email?: string;
   consent?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
   // Contact form specific errors
   name?: string;
   subject?: string;
@@ -66,9 +73,11 @@ export interface TeacherFormErrors {
   instruments?: string;
   qualifications?: string;
   experience?: string;
+  cvFile?: string;
+  consent?: string;
 }
 
 export const CLASS_OPTIONS = [
-  "Violin", "Viola", "Cello", "Flute", "Clarinet", 
+  "Violin", "Viola", "Cello", "Flute", "Clarinet",
   "Trumpet", "Recorder", "Marimba", "Percussion", "Dance"
 ];
