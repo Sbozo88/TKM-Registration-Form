@@ -61,18 +61,20 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                     required
                 />
                 {error && <p className="text-red-600 text-sm">{error}</p>}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors ${loading ? 'opacity-70 cursor-wait' : ''}`}
-                >
-                    {loading ? 'Authenticating...' : 'Login'}
-                </button>
-                <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-4">
-                    <a href="/" className="text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors flex items-center justify-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                        Back to Website
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                    <a
+                        href="/"
+                        className="flex items-center justify-center w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold transition-colors text-sm"
+                    >
+                        Back
                     </a>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors ${loading ? 'opacity-70 cursor-wait' : ''}`}
+                    >
+                        {loading ? '...' : 'Login'}
+                    </button>
                 </div>
             </form>
         </div>
