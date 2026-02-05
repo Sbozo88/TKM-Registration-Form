@@ -10,6 +10,14 @@ export default defineConfig({
         main: resolve('index.html'),
         thanks: resolve('thanks.html'),
       },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
+          charts: ['recharts'],
+          utils: ['xlsx', 'jspdf', 'jspdf-autotable', 'file-saver']
+        }
+      }
     },
   },
 });

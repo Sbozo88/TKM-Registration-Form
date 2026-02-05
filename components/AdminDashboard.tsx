@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 interface DashboardProps {
     onLogout: () => void;
@@ -24,6 +25,9 @@ const Icons = {
     FilePdf: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
     FileDoc: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
     Eye: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
+    ChartPie: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>,
+    Filter: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>,
+    Globe: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
 };
 
 // --- Helper Components ---
@@ -183,8 +187,9 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     const [registrations, setRegistrations] = useState<DocumentData[]>([]);
     const [teachers, setTeachers] = useState<DocumentData[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentView, setCurrentView] = useState<'overview' | 'students' | 'teachers'>('overview');
+    const [currentView, setCurrentView] = useState<'overview' | 'students' | 'teachers' | 'analytics'>('overview');
     const [searchTerm, setSearchTerm] = useState('');
+    const [programFilter, setProgramFilter] = useState('');
     const [selectedItem, setSelectedItem] = useState<DocumentData | null>(null);
     const [showExportMenu, setShowExportMenu] = useState(false);
 
@@ -202,14 +207,20 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     }, []);
 
     const filteredData = useMemo(() => {
-        const data = currentView === 'students' ? registrations : teachers;
+        let data = currentView === 'students' ? registrations : teachers;
+
+        // Filter by Program (Students only)
+        if (currentView === 'students' && programFilter) {
+            data = data.filter(item => item.classes === programFilter);
+        }
+
         if (!searchTerm) return data;
         const lower = searchTerm.toLowerCase();
         return data.filter(item => {
             const name = currentView === 'students' ? item.studentName : item.fullName;
             return (name?.toLowerCase().includes(lower) || item.email?.toLowerCase().includes(lower) || item.phone?.toLowerCase().includes(lower));
         });
-    }, [currentView, registrations, teachers, searchTerm]);
+    }, [currentView, registrations, teachers, searchTerm, programFilter]);
 
     const newToday = [...registrations, ...teachers].filter(r => {
         if (!r.submittedAt) return false;
@@ -217,7 +228,7 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         return d.toDateString() === new Date().toDateString();
     }).length;
 
-    const handleExport = (type: 'excel' | 'pdf' | 'doc') => {
+    const handleExport = (type: 'excel' | 'pdf' | 'doc' | 'classlist') => {
         const data = filteredData.map(({ id, ...rest }) => rest);
         const filename = `tkm_${currentView}_${new Date().toISOString().split('T')[0]}`;
         const title = `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Report`;
@@ -225,6 +236,31 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         if (type === 'excel') exportToExcel(data, filename);
         if (type === 'pdf') exportToPDF(data, title, filename);
         if (type === 'doc') exportToDoc(data, title, filename);
+        if (type === 'classlist') {
+            const doc = new jsPDF();
+            doc.setFontSize(18);
+            doc.text(`${programFilter || 'All Students'} - Class List`, 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+            const headers = [['Student Name', 'Age', 'Parent Name', 'Contact', 'Email']];
+            const rows = data.map(row => [
+                row.studentName,
+                row.studentDob ? new Date().getFullYear() - new Date(row.studentDob).getFullYear() : '',
+                row.parentName,
+                row.phone,
+                row.email
+            ]);
+
+            autoTable(doc, {
+                startY: 35,
+                head: headers,
+                body: rows,
+                theme: 'striped',
+                headStyles: { fillColor: [62, 59, 246] }, // Brand color
+            });
+            doc.save(`${filename}_classlist.pdf`);
+        }
 
         setShowExportMenu(false);
     };
@@ -253,13 +289,18 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                 <div className="flex-1 px-4 py-8 space-y-2 overflow-y-auto hidden-scrollbar">
                     <div className="px-4 text-xs font-bold text-slate-400/80 uppercase tracking-wider mb-2">Main</div>
                     <SidebarItem icon={Icons.Home} label="Overview" active={currentView === 'overview'} onClick={() => setCurrentView('overview')} />
+                    <SidebarItem icon={Icons.ChartPie} label="Analytics" active={currentView === 'analytics'} onClick={() => setCurrentView('analytics')} />
 
                     <div className="px-4 text-xs font-bold text-slate-400/80 uppercase tracking-wider mb-2 mt-8">People</div>
                     <SidebarItem icon={Icons.Users} label="Students" active={currentView === 'students'} onClick={() => setCurrentView('students')} />
                     <SidebarItem icon={Icons.Academic} label="Teachers" active={currentView === 'teachers'} onClick={() => setCurrentView('teachers')} />
                 </div>
 
-                <div className="p-4 border-t border-slate-100/50 dark:border-white/5 bg-white/30 dark:bg-black/20 backdrop-blur-sm">
+                <div className="p-4 border-t border-slate-100/50 dark:border-white/5 bg-white/30 dark:bg-black/20 backdrop-blur-sm space-y-2">
+                    <a href="/" className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                        <Icons.Globe />
+                        <span className="font-medium text-sm">Back to Website</span>
+                    </a>
                     <button onClick={onLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
                         <Icons.Logout />
                         <span className="font-medium text-sm">Sign Out</span>
@@ -298,28 +339,10 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     {currentView === 'overview' && (
                         <div className="space-y-8 animate-fade-in-up">
                             {/* Stats Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <StatCard
-                                    title="New Applications"
-                                    value={newToday}
-                                    subtext="Today's submissions"
-                                    colorClass="bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/20"
-                                    darkColorClass="dark:from-emerald-500 dark:to-teal-700"
-                                />
-                                <StatCard
-                                    title="Total Students"
-                                    value={registrations.length}
-                                    subtext="Active enrollments"
-                                    colorClass="bg-gradient-to-br from-brand-400 to-blue-600 shadow-lg shadow-brand-500/20"
-                                    darkColorClass="dark:from-sky-500 dark:to-blue-700"
-                                />
-                                <StatCard
-                                    title="Total Teachers"
-                                    value={teachers.length}
-                                    subtext="Registered staff"
-                                    colorClass="bg-gradient-to-br from-violet-400 to-purple-600 shadow-lg shadow-violet-500/20"
-                                    darkColorClass="dark:from-violet-500 dark:to-purple-700"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <StatCard title="Total Students" value={registrations.length} colorClass="bg-gradient-to-br from-blue-500 to-indigo-600" darkColorClass="dark:from-blue-600 dark:to-indigo-700" subtext={`+${newToday} today`} />
+                                <StatCard title="Total Teachers" value={teachers.length} colorClass="bg-gradient-to-br from-emerald-400 to-teal-600" darkColorClass="dark:from-emerald-500 dark:to-teal-700" />
+                                <StatCard title="New Requests" value={newToday} colorClass="bg-gradient-to-br from-amber-400 to-orange-600" darkColorClass="dark:from-amber-500 dark:to-orange-700" />
                             </div>
 
                             {/* Recent Activity Section - Glass Effect */}
@@ -366,22 +389,58 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                         </div>
                     )}
 
+                    {currentView === 'analytics' && (
+                        <div className="animate-fade-in-up">
+                            <AnalyticsDashboard students={registrations} teachers={teachers} />
+                        </div>
+                    )}
+
                     {(currentView === 'students' || currentView === 'teachers') && (
                         <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/50 dark:border-white/10 shadow-xl overflow-hidden animate-fade-in flex flex-col h-[calc(100vh-10rem)]">
-                            {/* Toolbar */}
+                            {/* Toolbar (Search, Filter, Export) */}
                             <div className="p-6 border-b border-slate-200/50 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/20 dark:bg-black/10">
-                                <div className="relative w-full max-w-md">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                        <Icons.Search />
+
+                                <div className="flex items-center space-x-3 w-full max-w-2xl">
+                                    {/* Program Filter (Students Only) */}
+                                    {currentView === 'students' && (
+                                        <div className="relative flex-shrink-0">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                                <Icons.Filter />
+                                            </div>
+                                            <select
+                                                value={programFilter}
+                                                onChange={(e) => setProgramFilter(e.target.value)}
+                                                className="pl-10 pr-8 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-transparent focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white appearance-none cursor-pointer backdrop-blur-sm transition-all text-sm font-medium"
+                                            >
+                                                <option value="">All Programs</option>
+                                                <option value="Violin">Violin</option>
+                                                <option value="Viola">Viola</option>
+                                                <option value="Cello">Cello</option>
+                                                <option value="Flute">Flute</option>
+                                                <option value="Clarinet">Clarinet</option>
+                                                <option value="Trumpet">Trumpet</option>
+                                                <option value="Recorder">Recorder</option>
+                                                <option value="Marimba">Marimba</option>
+                                                <option value="Percussion">Percussion</option>
+                                                <option value="Dance">Dance</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div className="relative w-full">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                            <Icons.Search />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder={`Search ${currentView}...`}
+                                            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-transparent focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white placeholder-slate-400 transition-all backdrop-blur-sm"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder={`Search ${currentView}...`}
-                                        className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-transparent focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white placeholder-slate-400 transition-all backdrop-blur-sm"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
                                 </div>
+
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
                                         <button
@@ -393,21 +452,30 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                                         </button>
 
                                         {showExportMenu && (
-                                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50 animate-fade-in">
-                                                <button onClick={() => handleExport('excel')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <Icons.FileExcel /> <span>Excel (.xlsx)</span>
-                                                </button>
-                                                <button onClick={() => handleExport('pdf')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <Icons.FilePdf /> <span>PDF (.pdf)</span>
-                                                </button>
-                                                <button onClick={() => handleExport('doc')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <Icons.FileDoc /> <span>Word (.doc)</span>
-                                                </button>
+                                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50 animate-fade-in">
+                                                <div className="p-1">
+                                                    <button onClick={() => handleExport('excel')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                                        <Icons.FileExcel /> <span>Excel (.xlsx)</span>
+                                                    </button>
+                                                    <button onClick={() => handleExport('pdf')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                                        <Icons.FilePdf /> <span>PDF Report</span>
+                                                    </button>
+                                                    <button onClick={() => handleExport('doc')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                                        <Icons.FileDoc /> <span>Word (.doc)</span>
+                                                    </button>
+                                                </div>
+                                                {currentView === 'students' && (
+                                                    <div className="border-t border-slate-100 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-700/30">
+                                                        <button onClick={() => handleExport('classlist')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors font-medium">
+                                                            <Icons.Users /> <span>Class List (PDF)</span>
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-white/30 dark:bg-white/5 px-4 py-2 rounded-xl">
+                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-white/30 dark:bg-white/5 px-4 py-2 rounded-xl border border-white/20">
                                         {filteredData.length} records
                                     </div>
                                 </div>

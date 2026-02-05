@@ -61,13 +61,21 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                     required
                 />
                 {error && <p className="text-red-600 text-sm">{error}</p>}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors ${loading ? 'opacity-70 cursor-wait' : ''}`}
-                >
-                    {loading ? 'Authenticating...' : 'Login'}
-                </button>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                    <a
+                        href="/"
+                        className="flex items-center justify-center w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold transition-colors text-sm"
+                    >
+                        Back
+                    </a>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors ${loading ? 'opacity-70 cursor-wait' : ''}`}
+                    >
+                        {loading ? '...' : 'Login'}
+                    </button>
+                </div>
             </form>
         </div>
     );
