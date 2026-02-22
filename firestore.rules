@@ -1,15 +1,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /registrations/{document=**} {
-      allow create: if true;
-      allow read: if true; // TODO: Lock this down to Admin only
-      allow update, delete: if false; 
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
+    
+    // Student registrations - public create, authenticated read
+    match /registrations/{document=**} {
+      allow create: if true;  // Allow public form submissions
+      allow read: if isAuthenticated();  // Only authenticated users can read
+      allow update, delete: if isAuthenticated();  // Only authenticated users can modify
+    }
+    
+    // Teacher applications - public create, authenticated read
     match /teacher_applications/{document=**} {
-      allow create: if true;
-      allow read: if true; // TODO: Lock this down to Admin only
-      allow update, delete: if false;
+      allow create: if true;  // Allow public form submissions
+      allow read: if isAuthenticated();  // Only authenticated users can read
+      allow update, delete: if isAuthenticated();  // Only authenticated users can modify
     }
   }
 }

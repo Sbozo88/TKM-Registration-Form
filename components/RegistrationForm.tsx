@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import StudentRegistrationForm from './StudentRegistrationForm';
 import TeacherApplicationForm from './TeacherApplicationForm';
+import AdmissionInfo from './AdmissionInfo';
 
 const RegistrationForm: React.FC = () => {
   const [formType, setFormType] = useState<'student' | 'teacher'>('student');
@@ -16,8 +17,8 @@ const RegistrationForm: React.FC = () => {
             <button
               onClick={() => setFormType('student')}
               className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${formType === 'student'
-                  ? 'bg-brand-600 text-white shadow-md'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                ? 'bg-brand-600 text-white shadow-md'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
             >
               Student Registration
@@ -25,8 +26,8 @@ const RegistrationForm: React.FC = () => {
             <button
               onClick={() => setFormType('teacher')}
               className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${formType === 'teacher'
-                  ? 'bg-brand-600 text-white shadow-md'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                ? 'bg-brand-600 text-white shadow-md'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
             >
               Teacher Application
@@ -40,7 +41,14 @@ const RegistrationForm: React.FC = () => {
           </p>
         </div>
 
-        {formType === 'student' ? <StudentRegistrationForm /> : <TeacherApplicationForm />}
+        {formType === 'student' ? (
+          <>
+            <AdmissionInfo />
+            <StudentRegistrationForm />
+          </>
+        ) : (
+          <TeacherApplicationForm />
+        )}
 
       </div>
     </section>
