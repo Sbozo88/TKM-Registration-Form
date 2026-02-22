@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
+import { submitToGoogleSheets } from '../services/googleSheets';
 import { TeacherFormData, TeacherFormErrors, CLASS_OPTIONS } from '../types';
 import { Input, TextArea, CheckboxGroup } from './ui';
 import { db, storage } from '../firebase/config';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgokvayk";
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT;
 
 const INITIAL_TEACHER_DATA: TeacherFormData = {
     fullName: '',
@@ -171,7 +172,9 @@ const TeacherApplicationForm: React.FC = () => {
                 _replyto: teacherData.email,
                 submission_type: 'Teacher',
                 timestamp: new Date().toISOString(),
-                cv_link: cvDownloadUrl || 'No CV uploaded'
+                cv_link: cvDownloadUrl || 'No CV uploaded',
+                admin_dashboard_link: `${window.location.origin}/admin`,
+                _message: "New teacher application. Click the link below to view details in the Admin Dashboard."
             };
 
             // 3. Try to Save to Firestore (Best Effort)
@@ -190,7 +193,20 @@ const TeacherApplicationForm: React.FC = () => {
                 console.error("Firestore write failed (non-fatal):", firestoreError);
             }
 
-            // 4. Send to Formspree (as JSON now!)
+            // 4. Submit to Google Sheets (Backup)
+            try {
+                await submitToGoogleSheets({
+                    ...rest,
+                    phone: normalizedPhone,
+                    instruments: teacherData.instruments.join(', '),
+                    cvUrl: cvDownloadUrl || 'No CV',
+                    timestamp: new Date().toISOString()
+                }, 'teacher');
+            } catch (sheetError) {
+                console.error("Google Sheets backup failed (non-fatal):", sheetError);
+            }
+
+            // 5. Send to Formspree (as JSON now!)
             const response = await fetch(FORMSPREE_ENDPOINT, {
                 method: "POST",
                 headers: {
@@ -218,9 +234,10 @@ const TeacherApplicationForm: React.FC = () => {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-200 dark:shadow-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl p-8 sm:p-16 space-y-14 relative transition-colors duration-300"
+            className="glass-effect shadow-premium border-white/20 dark:border-slate-800/30 rounded-3xl p-8 sm:p-12 lg:p-16 space-y-12 relative overflow-hidden"
             noValidate
         >
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 via-brand-600 to-accent-500"></div>
             <div className="hidden">
                 <label>Don’t fill this out if you’re human: <input name="botField" value={teacherData.botField} onChange={handleTeacherChange} autoComplete="off" /></label>
             </div>
@@ -302,30 +319,53 @@ const TeacherApplicationForm: React.FC = () => {
                     disabled={isSubmitting}
                 />
 
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                        Upload CV / Resume (Optional)
+                <div className="space-y-4">
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">
+                        Professional CV / Portfolio (Optional)
                     </label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-700 border-dashed rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                        <div className="space-y-1 text-center">
-                            <svg className="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            <div className="flex text-sm text-slate-600 dark:text-slate-400">
-                                <label htmlFor="cv-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-brand-600 hover:text-brand-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-500">
-                                    <span>Upload a file</span>
+                    <div className={`group relative transition-all duration-300 rounded-2xl border-2 border-dashed ${teacherData.cvFile ? 'border-green-500/50 bg-green-50/30 dark:bg-green-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-brand-400 dark:hover:border-brand-500/50 hover:bg-slate-50/50 dark:hover:bg-slate-900/50'}`}>
+                        <div className="px-6 py-10 text-center">
+                            <div className={`mx-auto h-16 w-16 mb-4 rounded-2xl flex items-center justify-center transition-all duration-300 ${teacherData.cvFile ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-brand-500 group-hover:scale-110'}`}>
+                                {teacherData.cvFile ? (
+                                    <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                ) : (
+                                    <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <label htmlFor="cv-upload" className="relative cursor-pointer focus-within:outline-none">
+                                    <span className="text-lg font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 transition-colors">
+                                        {teacherData.cvFile ? 'Change file' : 'Upload your CV'}
+                                    </span>
                                     <input id="cv-upload" name="cvFile" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" disabled={isSubmitting} />
                                 </label>
-                                <p className="pl-1">or drag and drop</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">PDF or Word (max. 5MB)</p>
                             </div>
-                            <p className="text-xs text-slate-500">PDF, DOC up to 5MB</p>
+
                             {teacherData.cvFile && (
-                                <p className="text-sm text-green-600 font-medium mt-2">
-                                    Selected: {teacherData.cvFile.name}
-                                </p>
+                                <div className="mt-4 flex items-center justify-center space-x-2 animate-fade-in">
+                                    <span className="px-3 py-1 bg-white dark:bg-slate-800 rounded-lg shadow-sm text-sm font-semibold text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700">
+                                        {teacherData.cvFile.name}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTeacherData(prev => ({ ...prev, cvFile: null }))}
+                                        className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             )}
+
                             {teacherErrors.cvFile && (
-                                <p className="text-sm text-red-600 font-medium mt-2">
+                                <p className="text-sm text-red-600 font-bold mt-3 animate-shake">
                                     {teacherErrors.cvFile}
                                 </p>
                             )}
@@ -379,20 +419,28 @@ const TeacherApplicationForm: React.FC = () => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full flex justify-center py-4 px-6 border border-transparent rounded-full shadow-lg shadow-brand-500/20 text-lg font-semibold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/50 transition-all transform active:scale-[0.99] ${isSubmitting ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-0.5'
+                    className={`group relative w-full flex justify-center py-5 px-8 border border-transparent rounded-2xl shadow-2xl shadow-brand-600/20 text-xl font-black text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/50 transition-all transform active:scale-[0.98] overflow-hidden ${isSubmitting ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-1'
                         }`}
                 >
-                    {isSubmitting ? (
-                        <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                        </span>
-                    ) : (
-                        'Submit Application'
-                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-400 to-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative flex items-center">
+                        {isSubmitting ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span className="tracking-wide">Processing Application...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="tracking-wide">Submit Application</span>
+                                <svg className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </>
+                        )}
+                    </span>
                 </button>
                 {submitStatus === 'error' && (
                     <div className="mt-6 text-center">

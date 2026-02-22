@@ -8,23 +8,44 @@ export interface ClassItem {
 
 export type SkillLevel = 'Beginner' | 'Intermediate';
 
-export interface FormData {
+// Shared Parent/Guardian Information
+export interface ParentInfo {
   parentName: string;
+  email: string;
+  phone: string;
+  address: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  referral: string;
+}
+
+// Individual Student Information
+export interface StudentInfo {
   studentName: string;
   studentDob: string; // string YYYY-MM-DD
   skillLevel: SkillLevel | '';
   priorExperience: string;
   classes: string;
-  address: string;
-  phone: string;
-  email: string;
-  referral: string;
+  medicalInfo: string;
+}
+
+// Complete Form Structure (Logic-only, not flattened)
+export interface RegistrationFormData {
+  parent: ParentInfo;
+  students: StudentInfo[];
+  common: {
+    consent: boolean;
+    sendCopy: boolean;
+    botField?: string;
+  };
+}
+
+// Legacy flat interface for backward compatibility if needed, 
+// though we will be moving away from this.
+export interface FormData extends ParentInfo, StudentInfo {
   consent: boolean;
   botField?: string;
   sendCopy: boolean;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  medicalInfo: string;
 }
 
 export interface TeacherFormData {
@@ -49,6 +70,7 @@ export interface ContactFormData {
 }
 
 export interface FormErrors {
+  [key: string]: string | undefined;
   parentName?: string;
   studentName?: string;
   studentDob?: string;

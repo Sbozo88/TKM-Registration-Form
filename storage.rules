@@ -1,9 +1,18 @@
+rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /cvs/{fileName} {
-      allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024;
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
+    
+    // CV uploads - public upload, authenticated read
+    match /cvs/{fileName} {
+      allow read: if isAuthenticated();  // Only authenticated users can view CVs
+      allow write: if request.resource.size < 5 * 1024 * 1024;  // Public upload, max 5MB
+    }
+    
+    // Block everything else
     match /{allPaths=**} {
       allow read, write: if false;
     }

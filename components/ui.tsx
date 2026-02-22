@@ -15,9 +15,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const ariaDescribedBy = [error ? errorId : undefined, helperText ? helperId : undefined].filter(Boolean).join(' ') || undefined;
 
     return (
-      <div className="w-full">
-        <label htmlFor={inputId} className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 dark:text-red-400 animate-shake' : 'text-slate-700 dark:text-slate-300'}`}>
-          {label} {props.required && <span className={error ? "text-red-600 dark:text-red-400" : "text-red-500 dark:text-red-400"} aria-hidden="true">*</span>}
+      <div className="w-full group">
+        <label htmlFor={inputId} className={`block text-sm font-semibold mb-2.5 transition-all duration-300 ${error ? 'text-red-600 dark:text-red-400 animate-shake' : 'text-slate-700 dark:text-slate-300 group-focus-within:text-brand-600 dark:group-focus-within:text-brand-400'}`}>
+          {label} {props.required && <span className={error ? "text-red-600 dark:text-red-400" : "text-brand-500"} aria-hidden="true">*</span>}
         </label>
         <div className="relative">
           <input
@@ -25,32 +25,35 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={ariaDescribedBy}
-            className={`w-full px-4 py-3 rounded-lg border text-base outline-none transition-all dark:bg-slate-900 ${
-              error 
-                ? 'border-red-500 bg-red-50 text-red-900 placeholder-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error pr-10 dark:border-red-500 dark:bg-red-900/10 dark:text-red-100 dark:placeholder-red-400' 
+            className={`w-full px-5 py-3.5 rounded-xl border text-base outline-none transition-all duration-300 shadow-sm dark:bg-slate-900/50 backdrop-blur-sm ${error
+                ? 'border-red-500 bg-red-50/50 text-red-900 placeholder-red-300 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 animate-input-error pr-12 dark:border-red-500/50 dark:bg-red-900/10 dark:text-red-100 dark:placeholder-red-400'
                 : isValid
-                  ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10 dark:border-green-500 dark:bg-green-900/10 dark:text-green-100'
-                  : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500'
-            } ${className}`}
+                  ? 'border-green-500 bg-green-50/50 text-slate-900 focus:ring-4 focus:ring-green-500/10 focus:border-green-500 pr-12 dark:border-green-500/50 dark:bg-green-900/10 dark:text-green-100 shadow-green-500/5'
+                  : 'border-slate-200 bg-white text-slate-900 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 dark:border-slate-800 dark:text-white dark:focus:ring-brand-500/20 dark:focus:border-brand-500 hover:border-slate-300 dark:hover:border-slate-700'
+              } ${className}`}
             {...props}
           />
           {isValid && !error && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none animate-fade-in">
-              <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none animate-fade-in">
+              <div className="bg-green-500/10 rounded-full p-1">
+                <svg className="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
           )}
           {error && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none animate-fade-in">
-              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none animate-fade-in">
+              <div className="bg-red-500/10 rounded-full p-1">
+                <svg className="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
           )}
         </div>
-        {helperText && !error && <p id={helperId} className={`mt-1.5 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
-        {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
+        {helperText && !error && <p id={helperId} className={`mt-2 text-xs px-1 ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
+        {error && <p id={errorId} role="alert" className="mt-2 text-xs text-red-600 dark:text-red-400 font-semibold px-1">{error}</p>}
       </div>
     );
   }
@@ -71,35 +74,36 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const ariaDescribedBy = [error ? errorId : undefined, helperText ? helperId : undefined].filter(Boolean).join(' ') || undefined;
 
     return (
-      <div className="w-full">
-        <label htmlFor={inputId} className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 dark:text-red-400 animate-shake' : 'text-slate-700 dark:text-slate-300'}`}>
-          {label} {props.required && <span className={error ? "text-red-600 dark:text-red-400" : "text-red-500 dark:text-red-400"} aria-hidden="true">*</span>}
+      <div className="w-full group">
+        <label htmlFor={inputId} className={`block text-sm font-semibold mb-2.5 transition-all duration-300 ${error ? 'text-red-600 dark:text-red-400 animate-shake' : 'text-slate-700 dark:text-slate-300 group-focus-within:text-brand-600 dark:group-focus-within:text-brand-400'}`}>
+          {label} {props.required && <span className={error ? "text-red-600 dark:text-red-400" : "text-brand-500"} aria-hidden="true">*</span>}
         </label>
         <div className="relative">
-            <textarea
+          <textarea
             ref={ref}
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={ariaDescribedBy}
-            className={`w-full px-4 py-3 rounded-lg border text-base outline-none transition-all dark:bg-slate-900 ${
-                error 
-                ? 'border-red-500 bg-red-50 text-red-900 placeholder-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error dark:border-red-500 dark:bg-red-900/10 dark:text-red-100 dark:placeholder-red-400' 
+            className={`w-full px-5 py-3.5 rounded-xl border text-base outline-none transition-all duration-300 shadow-sm dark:bg-slate-900/50 backdrop-blur-sm ${error
+                ? 'border-red-500 bg-red-50/50 text-red-900 placeholder-red-300 focus:ring-4 focus:ring-red-500/10 focus:border-red-500 animate-input-error dark:border-red-500/50 dark:bg-red-900/10 dark:text-red-100 dark:placeholder-red-400'
                 : isValid
-                    ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:border-green-500 dark:bg-green-900/10 dark:text-green-100'
-                    : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500'
-            } ${className}`}
+                  ? 'border-green-500 bg-green-50/50 text-slate-900 focus:ring-4 focus:ring-green-500/10 focus:border-green-500 dark:border-green-500/50 dark:bg-green-900/10 dark:text-green-100 shadow-green-500/5'
+                  : 'border-slate-200 bg-white text-slate-900 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 dark:border-slate-800 dark:text-white dark:focus:ring-brand-500/20 dark:focus:border-brand-500 hover:border-slate-300 dark:hover:border-slate-700'
+              } ${className}`}
             {...props}
-            />
-             {isValid && !error && (
-                <div className="absolute top-3 right-3 pointer-events-none animate-fade-in">
-                <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          />
+          {isValid && !error && (
+            <div className="absolute top-4 right-4 pointer-events-none animate-fade-in">
+              <div className="bg-green-500/10 rounded-full p-1">
+                <svg className="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                </div>
-            )}
+              </div>
+            </div>
+          )}
         </div>
-        {helperText && !error && <p id={helperId} className={`mt-1.5 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
-        {error && <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
+        {helperText && !error && <p id={helperId} className={`mt-2 text-xs px-1 ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
+        {error && <p id={errorId} role="alert" className="mt-2 text-xs text-red-600 dark:text-red-400 font-semibold px-1">{error}</p>}
       </div>
     );
   }
@@ -131,13 +135,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={ariaDescribedBy}
-            className={`w-full px-4 py-3 rounded-lg border text-base appearance-none outline-none transition-all dark:bg-slate-900 ${
-              error 
-                ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error dark:border-red-500 dark:bg-red-900/10 dark:text-red-100' 
+            className={`w-full px-4 py-3 rounded-lg border text-base appearance-none outline-none transition-all dark:bg-slate-900 ${error
+                ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 animate-input-error dark:border-red-500 dark:bg-red-900/10 dark:text-red-100'
                 : isValid
-                    ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:border-green-500 dark:bg-green-900/10 dark:text-green-100'
-                    : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500'
-            } ${className}`}
+                  ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:border-green-500 dark:bg-green-900/10 dark:text-green-100'
+                  : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500'
+              } ${className}`}
             {...props}
           >
             <option value="" disabled>Select an option</option>
@@ -148,10 +151,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-             {isValid && !error && (
-                <svg className="w-5 h-5 text-green-500 mr-2 animate-fade-in" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
+            {isValid && !error && (
+              <svg className="w-5 h-5 text-green-500 mr-2 animate-fade-in" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
             )}
             <svg className={`w-4 h-4 ${error ? 'text-red-500' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
           </div>
@@ -188,7 +191,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({ id, label, options, sele
         {options.map((option) => {
           const isSelected = selected === option;
           const hasErrorStyle = error && !isSelected;
-          
+
           return (
             <button
               key={option}
@@ -196,20 +199,19 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({ id, label, options, sele
               role="radio"
               aria-checked={isSelected}
               onClick={() => onChange(option)}
-              className={`text-sm px-4 py-3 rounded-full border transition-all duration-200 text-left flex items-center justify-between ${
-                isSelected
+              className={`text-sm px-4 py-3 rounded-full border transition-all duration-200 text-left flex items-center justify-between ${isSelected
                   ? 'bg-brand-100 dark:bg-brand-900/50 border-2 border-brand-600 dark:border-brand-500 text-brand-900 dark:text-brand-100 shadow-md font-semibold'
                   : hasErrorStyle
                     ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:border-red-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand-300 dark:hover:border-brand-600 hover:bg-slate-50 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               <span>{option}</span>
               {isSelected ? (
                 <div className="bg-brand-600 dark:bg-brand-500 rounded-full p-0.5 shadow-sm">
-                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                   </svg>
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
               ) : (
                 <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-500"></div>
@@ -256,7 +258,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ id, label, options
         {options.map((option) => {
           const isSelected = selected.includes(option);
           const hasErrorStyle = error && !isSelected && selected.length === 0;
-          
+
           return (
             <button
               key={option}
@@ -264,20 +266,19 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ id, label, options
               role="checkbox"
               aria-checked={isSelected}
               onClick={() => handleToggle(option)}
-              className={`text-sm px-4 py-3 rounded-full border transition-all duration-200 text-left flex items-center justify-between ${
-                isSelected
+              className={`text-sm px-4 py-3 rounded-full border transition-all duration-200 text-left flex items-center justify-between ${isSelected
                   ? 'bg-brand-50 dark:bg-brand-900/50 border-brand-500 text-brand-900 dark:text-brand-100 shadow-sm font-semibold'
                   : hasErrorStyle
                     ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:border-red-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand-300 dark:hover:border-brand-600 hover:bg-slate-50 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               <span>{option}</span>
               {isSelected ? (
                 <div className="bg-brand-500 rounded-md p-0.5">
-                   <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                   </svg>
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
               ) : (
                 <div className="w-4 h-4 rounded-md border border-slate-300 dark:border-slate-500"></div>
@@ -349,32 +350,32 @@ export const DateSelect: React.FC<DateSelectProps> = ({
   const getDaysInMonth = (y: string, m: string) => {
     return new Date(parseInt(y || new Date().getFullYear().toString()), parseInt(m || '1'), 0).getDate();
   };
-  
+
   const daysInMonth = getDaysInMonth(parts.y, parts.m);
   const days = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
 
   const handleChange = (field: 'd' | 'm' | 'y', val: string) => {
     const newParts = { ...parts, [field]: val };
-    
+
     // Auto-adjust day if needed
     const dInM = getDaysInMonth(newParts.y || parts.y, newParts.m || parts.m);
     if (newParts.d && parseInt(newParts.d) > dInM) {
-        newParts.d = dInM.toString();
+      newParts.d = dInM.toString();
     }
 
     setParts(newParts);
 
     if (newParts.d && newParts.m && newParts.y) {
-       const dateStr = `${newParts.y}-${newParts.m.padStart(2, '0')}-${newParts.d.padStart(2, '0')}`;
-       onChange({ target: { name, value: dateStr } });
+      const dateStr = `${newParts.y}-${newParts.m.padStart(2, '0')}-${newParts.d.padStart(2, '0')}`;
+      onChange({ target: { name, value: dateStr } });
     } else {
-       onChange({ target: { name, value: '' } });
+      onChange({ target: { name, value: '' } });
     }
   };
 
   const baseSelectClass = `w-full px-3 py-3 rounded-lg border text-base appearance-none outline-none transition-all dark:bg-slate-900 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`;
-  const stateClass = error 
-    ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500' 
+  const stateClass = error
+    ? 'border-red-500 bg-red-50 text-red-900 focus:ring-2 focus:ring-red-500'
     : isValid
       ? 'border-green-500 bg-green-50 text-slate-900 focus:ring-2 focus:ring-green-500'
       : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:text-white dark:focus:ring-brand-500';
@@ -383,55 +384,55 @@ export const DateSelect: React.FC<DateSelectProps> = ({
 
   const Chevron = () => (
     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-        <svg className={`w-4 h-4 ${error ? 'text-red-500' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      <svg className={`w-4 h-4 ${error ? 'text-red-500' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
     </div>
   );
 
   return (
     <div className="w-full">
       <label className={`block text-sm font-medium mb-2 transition-colors ${error ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'}`}>
-         {label} {required && <span className={error ? "text-red-600 dark:text-red-400" : "text-red-500 dark:text-red-400"}>*</span>}
+        {label} {required && <span className={error ? "text-red-600 dark:text-red-400" : "text-red-500 dark:text-red-400"}>*</span>}
       </label>
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
-         <div className="relative">
-            <select 
-              value={parts.d} 
-              onChange={e => handleChange('d', e.target.value)} 
-              className={selectClass}
-              disabled={disabled}
-            >
-                <option value="">Day</option>
-                {days.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-            <Chevron />
-         </div>
-         <div className="relative">
-            <select 
-              value={parts.m} 
-              onChange={e => handleChange('m', e.target.value)} 
-              className={selectClass}
-              disabled={disabled}
-            >
-                <option value="">Month</option>
-                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-            </select>
-            <Chevron />
-         </div>
-         <div className="relative">
-            <select 
-              value={parts.y} 
-              onChange={e => handleChange('y', e.target.value)} 
-              className={selectClass}
-              disabled={disabled}
-            >
-                <option value="">Year</option>
-                {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-            <Chevron />
-         </div>
+        <div className="relative">
+          <select
+            value={parts.d}
+            onChange={e => handleChange('d', e.target.value)}
+            className={selectClass}
+            disabled={disabled}
+          >
+            <option value="">Day</option>
+            {days.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <Chevron />
+        </div>
+        <div className="relative">
+          <select
+            value={parts.m}
+            onChange={e => handleChange('m', e.target.value)}
+            className={selectClass}
+            disabled={disabled}
+          >
+            <option value="">Month</option>
+            {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+          <Chevron />
+        </div>
+        <div className="relative">
+          <select
+            value={parts.y}
+            onChange={e => handleChange('y', e.target.value)}
+            className={selectClass}
+            disabled={disabled}
+          >
+            <option value="">Year</option>
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <Chevron />
+        </div>
       </div>
-       {helperText && !error && <p className={`mt-1.5 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
-       {error && <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
+      {helperText && !error && <p className={`mt-1.5 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{helperText}</p>}
+      {error && <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{error}</p>}
     </div>
   );
 };
