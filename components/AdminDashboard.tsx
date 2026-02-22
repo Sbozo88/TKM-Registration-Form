@@ -33,13 +33,19 @@ const Icons = {
 // --- Helper Components ---
 
 const StatCard = ({ title, value, subtext, colorClass, darkColorClass }: { title: string, value: number | string, subtext?: string, colorClass: string, darkColorClass: string }) => (
-    <div className={`rounded-2xl p-6 shadow-sm transition-transform hover:scale-[1.02] ${colorClass} ${darkColorClass} text-white`}>
-        <div className="flex flex-col h-full justify-between">
+    <div className={`relative group overflow-hidden rounded-[2rem] p-8 shadow-premium transition-all duration-300 hover:-translate-y-1 ${colorClass} ${darkColorClass} text-white`}>
+        <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+        <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-                <p className="text-sm font-medium opacity-80 uppercase tracking-wider">{title}</p>
-                <h3 className="text-4xl font-bold mt-2">{value}</h3>
+                <p className="text-[10px] font-black opacity-80 uppercase tracking-[0.2em]">{title}</p>
+                <h3 className="text-5xl font-black mt-3 tracking-tight">{value}</h3>
             </div>
-            {subtext && <p className="text-xs font-medium opacity-70 mt-4">{subtext}</p>}
+            {subtext && (
+                <div className="mt-6 flex items-center space-x-2">
+                    <div className="h-1 w-8 bg-white/30 rounded-full"></div>
+                    <p className="text-xs font-bold opacity-90">{subtext}</p>
+                </div>
+            )}
         </div>
     </div>
 );
@@ -141,40 +147,51 @@ const exportToDoc = (data: any[], title: string, filename: string) => {
 const DetailModal = ({ item, onClose }: { item: any, onClose: () => void }) => {
     if (!item) return null;
 
-    const entries = Object.entries(item).filter(([key]) => !['id', 'submittedAt', 'cvUrl'].includes(key));
+    const entries = Object.entries(item).filter(([key]) => !['id', 'submittedAt', 'cvUrl', 'botField'].includes(key));
+    const timestamp = item.submittedAt?.seconds ? new Date(item.submittedAt.seconds * 1000) : new Date(item.submittedAt);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-            <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-white/50 dark:border-white/10 animate-fade-in-up">
-                <div className="flex items-center justify-between p-6 border-b border-slate-200/50 dark:border-white/5 bg-white/50 dark:bg-white/5">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Submission Details</h3>
-                    <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 transition-colors">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-xl transition-opacity animate-fade-in" onClick={onClose}></div>
+            <div className="relative bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl rounded-[3rem] shadow-premium w-full max-w-2xl max-h-[92vh] overflow-hidden border border-white/20 dark:border-white/5 animate-fade-in-up">
+                <div className="flex items-center justify-between p-10 border-b border-white/10 dark:border-white/5 bg-white/10 dark:bg-black/10">
+                    <div>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">System Record</h3>
+                        <p className="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.2em] mt-2 flex items-center">
+                            <span className="w-2 h-2 rounded-full bg-brand-600 mr-2 animate-pulse"></span>
+                            Generated {timestamp.toLocaleString()}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="p-4 rounded-[1.5rem] bg-slate-100 dark:bg-white/5 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-500 transition-all active:scale-95">
                         <Icons.Close />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] custom-scrollbar">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-10 overflow-y-auto max-h-[calc(92vh-160px)] custom-scrollbar">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                         {entries.map(([key, value]) => (
-                            <div key={key} className="space-y-1">
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                                <div className="text-sm font-medium text-slate-900 dark:text-white break-words p-3 rounded-lg bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                                    {String(value)}
+                            <div key={key} className="space-y-2 group">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-brand-600 transition-colors">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                                <div className="text-base font-bold text-slate-900 dark:text-slate-100 break-words leading-relaxed">
+                                    {String(value || 'N/A')}
                                 </div>
+                                <div className="h-[1px] w-full bg-slate-100 dark:bg-white/5 mt-4"></div>
                             </div>
                         ))}
-                        {item.cvUrl && (
-                            <div className="col-span-full space-y-1">
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">CV / Resume</label>
-                                <div>
-                                    <a href={item.cvUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
-                                        <Icons.Download />
-                                        <span>Download CV</span>
-                                    </a>
-                                </div>
-                            </div>
-                        )}
                     </div>
+
+                    {item.cvUrl && (
+                        <div className="mt-12 p-8 rounded-[2rem] bg-brand-500/5 border border-brand-500/10 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-brand-600 flex items-center justify-center text-white mb-6 shadow-xl shadow-brand-600/20">
+                                <Icons.Download />
+                            </div>
+                            <h4 className="text-lg font-black text-slate-900 dark:text-white mb-2">Academic Credentials</h4>
+                            <p className="text-sm text-slate-500 mb-6 max-w-xs">The candidate has attached a verifyable CV/Resume for analysis.</p>
+                            <a href={item.cvUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center space-x-3 px-8 py-4 rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition-all font-black uppercase tracking-widest text-xs shadow-lg shadow-brand-600/10 active:scale-[0.98]">
+                                <Icons.Download />
+                                <span>Verify Document</span>
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -192,14 +209,19 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     const [programFilter, setProgramFilter] = useState('');
     const [selectedItem, setSelectedItem] = useState<DocumentData | null>(null);
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
     useEffect(() => {
         const qStudents = query(collection(db, "registrations"), orderBy("submittedAt", "desc"));
-        const unsubStudents = onSnapshot(qStudents, (snap) => setRegistrations(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+        const unsubStudents = onSnapshot(qStudents, (snap) => {
+            setRegistrations(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            setLastUpdated(new Date());
+        });
 
         const qTeachers = query(collection(db, "teacher_applications"), orderBy("submittedAt", "desc"));
         const unsubTeachers = onSnapshot(qTeachers, (snap) => {
             setTeachers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            setLastUpdated(new Date());
             setLoading(false);
         });
 
@@ -278,39 +300,44 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             </div>
 
             {/* Sidebar with Glassmorphism */}
-            <aside className="w-64 flex-shrink-0 bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border-r border-white/50 dark:border-white/10 flex flex-col transition-colors z-20 shadow-xl">
-                <div className="h-20 flex items-center gap-3 px-6 border-b border-slate-100/50 dark:border-white/5">
-                    <img src="/tkm-logo.png" alt="TKM Logo" className="h-10 w-10 object-contain drop-shadow-md" />
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-violet-600 dark:from-sky-400 dark:to-violet-400">
-                        TKMAdmin
-                    </span>
+            <aside className="w-72 flex-shrink-0 bg-white/40 dark:bg-slate-950/40 backdrop-blur-2xl border-r border-white/20 dark:border-slate-800/30 flex flex-col transition-all z-20 shadow-premium relative">
+                <div className="h-24 flex items-center gap-4 px-8 border-b border-white/10 dark:border-white/5">
+                    <div className="p-2 bg-brand-600 rounded-xl shadow-lg shadow-brand-600/20">
+                        <span className="text-white font-black text-xl leading-none">T</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
+                            TKM<span className="text-brand-600">Admin</span>
+                        </span>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mt-1">Management Console</span>
+                    </div>
                 </div>
 
-                <div className="flex-1 px-4 py-8 space-y-2 overflow-y-auto hidden-scrollbar">
-                    <div className="px-4 text-xs font-bold text-slate-400/80 uppercase tracking-wider mb-2">Main</div>
-                    <SidebarItem icon={Icons.Home} label="Overview" active={currentView === 'overview'} onClick={() => setCurrentView('overview')} />
-                    <SidebarItem icon={Icons.ChartPie} label="Analytics" active={currentView === 'analytics'} onClick={() => setCurrentView('analytics')} />
+                <div className="flex-1 px-6 py-10 space-y-2 overflow-y-auto custom-scrollbar">
+                    <div className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Core Sections</div>
+                    <SidebarItem icon={Icons.Home} label="Live Overview" active={currentView === 'overview'} onClick={() => setCurrentView('overview')} />
+                    <SidebarItem icon={Icons.ChartPie} label="Advanced Analytics" active={currentView === 'analytics'} onClick={() => setCurrentView('analytics')} />
 
-                    <div className="px-4 text-xs font-bold text-slate-400/80 uppercase tracking-wider mb-2 mt-8">People</div>
-                    <SidebarItem icon={Icons.Users} label="Students" active={currentView === 'students'} onClick={() => setCurrentView('students')} />
-                    <SidebarItem icon={Icons.Academic} label="Teachers" active={currentView === 'teachers'} onClick={() => setCurrentView('teachers')} />
+                    <div className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 mt-10">Data Management</div>
+                    <SidebarItem icon={Icons.Users} label="Student Records" active={currentView === 'students'} onClick={() => setCurrentView('students')} />
+                    <SidebarItem icon={Icons.Academic} label="Faculty Applications" active={currentView === 'teachers'} onClick={() => setCurrentView('teachers')} />
                 </div>
 
-                <div className="p-4 border-t border-slate-100/50 dark:border-white/5 bg-white/30 dark:bg-black/20 backdrop-blur-sm space-y-2">
-                    <a href="/" className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                <div className="p-6 border-t border-white/10 dark:border-white/5 bg-white/10 dark:bg-black/10 backdrop-blur-md space-y-3">
+                    <a href="/" className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 transition-all border border-transparent hover:border-white/20">
                         <Icons.Globe />
-                        <span className="font-medium text-sm">Back to Website</span>
+                        <span className="font-bold text-sm">View Website</span>
                     </a>
-                    <button onClick={onLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
+                    <button onClick={onLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-red-600 hover:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 transition-all border border-transparent hover:border-red-500/20">
                         <Icons.Logout />
-                        <span className="font-medium text-sm">Sign Out</span>
+                        <span className="font-bold text-sm">Secure Sign Out</span>
                     </button>
                     <div className="mt-4 px-2 flex items-center">
                         <div className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </div>
-                        <span className="ml-3 text-xs font-medium text-slate-500 dark:text-slate-400">System Online</span>
+                        <span className="ml-3 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Server: Production</span>
                     </div>
                 </div>
             </aside>
@@ -318,17 +345,32 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
                 {/* Header with Glassmorphism */}
-                <header className="h-20 flex-shrink-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/50 dark:border-white/10 flex items-center justify-between px-8 z-10 sticky top-0 shadow-sm">
+                <header className="h-24 flex-shrink-0 bg-white/30 dark:bg-slate-950/30 backdrop-blur-2xl border-b border-white/20 dark:border-white/5 flex items-center justify-between px-10 z-10 sticky top-0">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-                            {currentView === 'overview' ? 'Dashboard Overview' : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Management`}
+                        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                            {currentView === 'overview' ? 'Command Center' : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Management`}
                         </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Welcome back, Admin</p>
+                        <div className="flex items-center space-x-3 mt-1">
+                            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                <span className="relative flex h-1.5 w-1.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Live Sync</span>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
+                                Refreshed: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </p>
+                        </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-500 to-violet-500 p-[2px] shadow-lg shadow-brand-500/30">
-                            <div className="h-full w-full rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
-                                <span className="text-sm font-bold">A</span>
+                        <div className="flex flex-col items-end mr-2 md:block hidden">
+                            <span className="text-sm font-black text-slate-900 dark:text-white leading-none">Administrator</span>
+                            <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Super User</span>
+                        </div>
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 p-[2px] shadow-lg shadow-brand-500/20 rotate-3 hover:rotate-0 transition-transform duration-300">
+                            <div className="h-full w-full rounded-[14px] bg-white dark:bg-slate-900 flex items-center justify-center text-slate-900 dark:text-white">
+                                <span className="text-lg font-black">A</span>
                             </div>
                         </div>
                     </div>
@@ -346,38 +388,47 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                             </div>
 
                             {/* Recent Activity Section - Glass Effect */}
-                            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/50 dark:border-white/10 shadow-xl overflow-hidden">
-                                <div className="px-8 py-6 border-b border-slate-200/50 dark:border-white/5 flex justify-between items-center">
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Activity</h3>
-                                    <span className="text-xs font-medium px-3 py-1 bg-white/50 dark:bg-white/10 rounded-full border border-white/20 text-slate-500 dark:text-slate-400">Live Feed</span>
+                            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-premium overflow-hidden">
+                                <div className="px-10 py-8 border-b border-white/10 dark:border-white/5 flex justify-between items-center bg-white/10 dark:bg-black/10">
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Recent Activity</h3>
+                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Real-time submission log</p>
+                                    </div>
+                                    <span className="text-[10px] font-black px-4 py-1.5 bg-brand-600 text-white rounded-full shadow-lg shadow-brand-600/20 uppercase tracking-widest">Live Feed</span>
                                 </div>
-                                <div className="divide-y divide-slate-100/50 dark:divide-white/5">
+                                <div className="divide-y divide-white/10 dark:divide-white/5">
                                     {[...registrations, ...teachers]
                                         .sort((a, b) => (b.submittedAt?.seconds || 0) - (a.submittedAt?.seconds || 0))
                                         .slice(0, 5)
                                         .map((item, idx) => (
                                             <div
                                                 key={idx}
-                                                className="px-8 py-4 flex items-center justify-between hover:bg-white/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                                                className="px-10 py-6 flex items-center justify-between hover:bg-white/60 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer group"
                                                 onClick={() => setSelectedItem(item)}
                                             >
-                                                <div className="flex items-center space-x-4">
-                                                    <Avatar name={item.studentName || item.fullName} size="sm" />
+                                                <div className="flex items-center space-x-6">
+                                                    <div className="relative">
+                                                        <Avatar name={item.studentName || item.fullName} />
+                                                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center ${item.studentName ? 'bg-brand-600' : 'bg-violet-600'}`}>
+                                                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                                        </div>
+                                                    </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-800 dark:text-white">{item.studentName || item.fullName}</p>
-                                                        <div className="flex items-center space-x-2 mt-0.5">
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${item.studentName ? 'bg-brand-500' : 'bg-violet-500'}`}></span>
-                                                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                {item.studentName ? 'Student' : 'Teacher'}
+                                                        <p className="text-base font-black text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{item.studentName || item.fullName}</p>
+                                                        <div className="flex items-center space-x-3 mt-1">
+                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                                {item.studentName ? 'Student' : 'Teacher Candidate'}
                                                             </p>
+                                                            <span className="text-slate-300 dark:text-slate-700">•</span>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">#{item.id.slice(0, 6)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end">
-                                                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                                    <span className="text-sm font-black text-slate-900 dark:text-white">
                                                         {item.submittedAt?.seconds ? new Date(item.submittedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-400">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
                                                         {item.submittedAt?.seconds ? new Date(item.submittedAt.seconds * 1000).toLocaleDateString() : 'Just now'}
                                                     </span>
                                                 </div>
@@ -396,23 +447,23 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                     )}
 
                     {(currentView === 'students' || currentView === 'teachers') && (
-                        <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/50 dark:border-white/10 shadow-xl overflow-hidden animate-fade-in flex flex-col h-[calc(100vh-10rem)]">
+                        <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 shadow-premium overflow-hidden animate-fade-in flex flex-col h-[calc(100vh-14rem)]">
                             {/* Toolbar (Search, Filter, Export) */}
-                            <div className="p-6 border-b border-slate-200/50 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/20 dark:bg-black/10">
+                            <div className="p-8 border-b border-white/10 dark:border-white/5 flex flex-col lg:flex-row justify-between items-center gap-6 bg-white/20 dark:bg-black/20">
 
-                                <div className="flex items-center space-x-3 w-full max-w-2xl">
+                                <div className="flex items-center space-x-4 w-full max-w-3xl">
                                     {/* Program Filter (Students Only) */}
                                     {currentView === 'students' && (
                                         <div className="relative flex-shrink-0">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-brand-600 dark:text-brand-400">
                                                 <Icons.Filter />
                                             </div>
                                             <select
                                                 value={programFilter}
                                                 onChange={(e) => setProgramFilter(e.target.value)}
-                                                className="pl-10 pr-8 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-transparent focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white appearance-none cursor-pointer backdrop-blur-sm transition-all text-sm font-medium"
+                                                className="pl-12 pr-10 py-4 rounded-2xl bg-white/50 dark:bg-slate-950/50 border border-white/20 dark:border-white/5 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 text-slate-900 dark:text-white appearance-none cursor-pointer backdrop-blur-md transition-all text-sm font-black uppercase tracking-widest outline-none"
                                             >
-                                                <option value="">All Programs</option>
+                                                <option value="">All Disciplines</option>
                                                 <option value="Violin">Violin</option>
                                                 <option value="Viola">Viola</option>
                                                 <option value="Cello">Cello</option>
@@ -428,46 +479,46 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                                     )}
 
                                     <div className="relative w-full">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400">
                                             <Icons.Search />
                                         </div>
                                         <input
                                             type="text"
-                                            placeholder={`Search ${currentView}...`}
-                                            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 border border-transparent focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white placeholder-slate-400 transition-all backdrop-blur-sm"
+                                            placeholder={`Search ${currentView === 'students' ? 'Student Records' : 'Faculty Profiles'}...`}
+                                            className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white/50 dark:bg-slate-950/50 border border-white/20 dark:border-white/5 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 text-slate-900 dark:text-white placeholder-slate-500 transition-all backdrop-blur-md outline-none font-medium"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-4">
                                     <div className="relative">
                                         <button
                                             onClick={() => setShowExportMenu(!showExportMenu)}
-                                            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 transition-all active:scale-95 font-medium text-sm"
+                                            className="group flex items-center space-x-3 px-6 py-4 rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/20 hover:bg-brand-700 transition-all active:scale-[0.98] font-black text-sm uppercase tracking-widest"
                                         >
                                             <Icons.Export />
-                                            <span>Export</span>
+                                            <span>Export Data</span>
                                         </button>
 
                                         {showExportMenu && (
-                                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-50 animate-fade-in">
-                                                <div className="p-1">
-                                                    <button onClick={() => handleExport('excel')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                                        <Icons.FileExcel /> <span>Excel (.xlsx)</span>
+                                            <div className="absolute right-0 mt-3 w-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-premium border border-white/20 dark:border-white/5 overflow-hidden z-50 animate-fade-in-up">
+                                                <div className="p-2 space-y-1">
+                                                    <button onClick={() => handleExport('excel')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-colors">
+                                                        <Icons.FileExcel /> <span>Microsoft Excel</span>
                                                     </button>
-                                                    <button onClick={() => handleExport('pdf')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                                        <Icons.FilePdf /> <span>PDF Report</span>
+                                                    <button onClick={() => handleExport('pdf')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-colors">
+                                                        <Icons.FilePdf /> <span>Portable Document (PDF)</span>
                                                     </button>
-                                                    <button onClick={() => handleExport('doc')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                                        <Icons.FileDoc /> <span>Word (.doc)</span>
+                                                    <button onClick={() => handleExport('doc')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-colors">
+                                                        <Icons.FileDoc /> <span>Word Document</span>
                                                     </button>
                                                 </div>
                                                 {currentView === 'students' && (
-                                                    <div className="border-t border-slate-100 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-700/30">
-                                                        <button onClick={() => handleExport('classlist')} className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors font-medium">
-                                                            <Icons.Users /> <span>Class List (PDF)</span>
+                                                    <div className="border-t border-white/10 dark:border-white/5 p-2 bg-brand-50/50 dark:bg-brand-500/5">
+                                                        <button onClick={() => handleExport('classlist')} className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/40 rounded-xl transition-colors font-black uppercase tracking-widest">
+                                                            <Icons.Users /> <span>Official Class List</span>
                                                         </button>
                                                     </div>
                                                 )}
@@ -475,8 +526,8 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                                         )}
                                     </div>
 
-                                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-white/30 dark:bg-white/5 px-4 py-2 rounded-xl border border-white/20">
-                                        {filteredData.length} records
+                                    <div className="text-[10px] font-black text-brand-600 dark:text-brand-400 bg-brand-500/10 dark:bg-brand-500/5 px-5 py-4 rounded-2xl border border-brand-500/20 uppercase tracking-widest">
+                                        {filteredData.length} Entries
                                     </div>
                                 </div>
                             </div>
@@ -484,19 +535,19 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                             {/* Table */}
                             <div className="overflow-auto flex-1 custom-scrollbar">
                                 <table className="w-full text-left border-collapse">
-                                    <thead className="bg-slate-50/50 dark:bg-white/5 text-xs uppercase text-slate-500 dark:text-slate-400 font-bold tracking-wider sticky top-0 backdrop-blur-md z-10">
+                                    <thead className="bg-slate-50/10 dark:bg-slate-950/40 text-[10px] uppercase text-slate-400 font-black tracking-[0.2em] sticky top-0 backdrop-blur-xl z-10 border-b border-white/10 dark:border-white/5">
                                         <tr>
-                                            <th className="px-8 py-5">Name</th>
-                                            <th className="px-6 py-5">Contact</th>
+                                            <th className="px-10 py-6">Record Identity</th>
+                                            <th className="px-8 py-6">Communication</th>
                                             {currentView === 'students' ? (
                                                 <>
-                                                    <th className="px-6 py-5">Parent</th>
-                                                    <th className="px-6 py-5">Classes</th>
+                                                    <th className="px-8 py-6">Guardian Info</th>
+                                                    <th className="px-8 py-6">Enrollment</th>
                                                 </>
                                             ) : (
-                                                <th className="px-6 py-5">Instruments</th>
+                                                <th className="px-8 py-6">Specialization</th>
                                             )}
-                                            <th className="px-8 py-5 text-right">Status</th>
+                                            <th className="px-10 py-6 text-right">System Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100/50 dark:divide-white/5">
@@ -506,48 +557,51 @@ const AdminDashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                                                 className="hover:bg-white/40 dark:hover:bg-white/5 transition-all duration-150 cursor-pointer"
                                                 onClick={() => setSelectedItem(row)}
                                             >
-                                                <td className="px-8 py-5">
-                                                    <div className="flex items-center space-x-4">
-                                                        <Avatar name={currentView === 'students' ? row.studentName : row.fullName} />
+                                                <td className="px-10 py-6">
+                                                    <div className="flex items-center space-x-5">
+                                                        <div className="relative">
+                                                            <Avatar name={currentView === 'students' ? row.studentName : row.fullName} />
+                                                            <div className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-brand-500 border-2 border-white dark:border-slate-800"></div>
+                                                        </div>
                                                         <div>
-                                                            <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                                            <div className="text-base font-black text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                                                                 {currentView === 'students' ? row.studentName : row.fullName}
                                                             </div>
-                                                            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">{row.email}</div>
+                                                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">{row.email}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-300 font-mono">
+                                                <td className="px-8 py-6 text-sm text-slate-600 dark:text-slate-300 font-black tracking-widest uppercase">
                                                     {row.phone}
                                                 </td>
                                                 {currentView === 'students' ? (
                                                     <>
-                                                        <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-300 font-medium">{row.parentName}</td>
-                                                        <td className="px-6 py-5">
-                                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand-100/50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 border border-brand-200/50 dark:border-brand-500/30">
+                                                        <td className="px-8 py-6 text-sm text-slate-600 dark:text-slate-300 font-bold">{row.parentName}</td>
+                                                        <td className="px-8 py-6">
+                                                            <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-brand-500/10 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-500/20">
                                                                 {row.classes}
                                                             </span>
                                                         </td>
                                                     </>
                                                 ) : (
-                                                    <td className="px-6 py-5">
+                                                    <td className="px-8 py-6">
                                                         <div className="flex flex-wrap gap-2">
                                                             {(Array.isArray(row.instruments) ? row.instruments : [row.instruments]).map((i: string, idx: number) => (
-                                                                <span key={idx} className="text-xs px-2.5 py-1 bg-slate-200/50 dark:bg-white/10 rounded-lg text-slate-700 dark:text-slate-200 border border-slate-300/50 dark:border-white/10 font-medium">
+                                                                <span key={idx} className="text-[10px] px-3 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 font-black uppercase tracking-widest">
                                                                     {i}
                                                                 </span>
                                                             ))}
                                                             {row.hasCv && (
-                                                                <div className="flex items-center space-x-1.5 text-xs px-2.5 py-1 bg-emerald-100/50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-lg border border-emerald-200/50 dark:border-emerald-500/30 font-bold">
-                                                                    <Icons.Download /> <span>CV</span>
+                                                                <div className="flex items-center space-x-1 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                                    <Icons.Download /> <span>Verify</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </td>
                                                 )}
-                                                <td className="px-8 py-5 text-right">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${row.status === 'new' ? 'bg-green-100/50 border-green-200/50 text-green-700 dark:bg-green-500/20 dark:border-green-500/30 dark:text-green-400' : 'bg-slate-100/50 border-slate-200/50 text-slate-600 dark:bg-slate-700/50 dark:border-slate-600/50 dark:text-slate-300'}`}>
-                                                        {row.status || 'Received'}
+                                                <td className="px-10 py-6 text-right">
+                                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border ${row.status === 'new' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' : 'bg-slate-100/50 border-slate-200/50 text-slate-600 dark:bg-slate-700/50 dark:border-slate-600/50 dark:text-slate-300'}`}>
+                                                        {row.status || 'Verified'}
                                                     </span>
                                                 </td>
                                             </tr>
